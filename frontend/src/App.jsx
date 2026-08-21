@@ -8,7 +8,7 @@ function App() {
   const [filter, setFilter] = useState("All");
 
   const [showScan, setShowScan] = useState(false);
-  const [repositoryPath, setRepositoryPath] = useState("");
+  const [repositoryUrl, setRepositoryUrl] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,46 +20,51 @@ function App() {
   // --------------------------------------------------
 
   const startScan = async () => {
-    if (!repositoryPath.trim()) {
-      setError("Please enter a repository path.");
-      return;
-    }
+  if (!repositoryUrl.trim()) {
+    setError("Please enter a GitHub repository URL.");
+    return;
+  }
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await fetch(`${API_URL}/discovery/scan`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repository_path: repositoryPath.trim(),
-        }),
-      });
+  try {
+    const response = await fetch(`${API_URL}/discovery/scan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        repository_url: repositoryUrl.trim(),
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`Scan failed with status ${response.status}`);
-      }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
 
-      const data = await response.json();
-
-      setAssets(data.assets || []);
-      setFilter("All");
-      setSelectedAsset(null);
-      setShowScan(false);
-      setRepositoryPath("");
-    } catch (err) {
-      console.error(err);
-
-      setError(
-        "Unable to connect to the scanner. Make sure the FastAPI backend is running."
+      throw new Error(
+        errorData?.detail || `Scan failed with status ${response.status}`
       );
-    } finally {
-      setLoading(false);
     }
-  };
+
+    const data = await response.json();
+
+    setAssets(data.assets || []);
+    setFilter("All");
+    setSelectedAsset(null);
+    setShowScan(false);
+    setRepositoryUrl("");
+  } catch (err) {
+    console.error(err);
+
+    setError(
+      err.message ||
+        "Unable to connect to the scanner. Make sure the FastAPI backend is running."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // --------------------------------------------------
   // FILTER
@@ -187,18 +192,18 @@ function App() {
               <h3>Start New Repository Scan</h3>
 
               <p>
-                Enter the local repository path that should be
-                analyzed for AI assets.
-              </p>
+                 Enter a GitHub repository URL to discover AI assets
+                 and supporting evidence.
+                 </p>
 
               <input
-                type="text"
-                placeholder="C:\path\to\repository"
-                value={repositoryPath}
-                onChange={(event) =>
-                  setRepositoryPath(event.target.value)
+                 type="url"
+                 placeholder="https://github.com/owner/repository"
+                 value={repositoryUrl}
+                 onChange={(event) =>
+                 setRepositoryUrl(event.target.value)
                 }
-              />
+                />
 
               {error && (
                 <div className="error-message">

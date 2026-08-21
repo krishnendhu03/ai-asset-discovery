@@ -1,0 +1,92 @@
+[
+  {
+    "text": "Payment API is returning timeout errors and customers cannot complete payments",
+    "category": "Payment",
+    "severity": "P1",
+    "team": "Payments Engineering"
+  },
+  {
+    "text": "Multiple payment transactions are failing after the latest deployment",
+    "category": "Payment",
+    "severity": "P1",
+    "team": "Payments Engineering"
+  },
+  {
+    "text": "Payment service is intermittently unavailable for customers",
+    "category": "Payment",
+    "severity": "P1",
+    "team": "Payments Engineering"
+  },
+  {
+    "text": "Users are unable to login and authentication requests are failing",
+    "category": "Authentication",
+    "severity": "P1",
+    "team": "Identity Engineering"
+  },
+  {
+    "text": "Identity service is returning authentication errors during login",
+    "category": "Authentication",
+    "severity": "P1",
+    "team": "Identity Engineering"
+  },
+  {
+    "text": "Users are experiencing intermittent authentication failures",
+    "category": "Authentication",
+    "severity": "P1",
+    "team": "Identity Engineering"
+  },
+  {
+    "text": "Document processing requests are delayed and the processing queue is growing",
+    "category": "Document Processing",
+    "severity": "P2",
+    "team": "Document Processing Team"
+  },
+  {
+    "text": "Document processing service is taking several minutes to complete requests",
+    "category": "Document Processing",
+    "severity": "P2",
+    "team": "Document Processing Team"
+  },
+  {
+    "text": "Large document processing backlog is affecting users",
+    "category": "Document Processing",
+    "severity": "P2",
+    "team": "Document Processing Team"
+  },
+  {
+    "text": "Reporting dashboard is loading slowly for users",
+    "category": "Reporting",
+    "severity": "P3",
+    "team": "Analytics Engineering"
+  },
+  {
+    "text": "Analytics reports are taking longer than expected to load",
+    "category": "Reporting",
+    "severity": "P3",
+    "team": "Analytics Engineering"
+  },
+  {
+    "text": "Search results are slower than normal but the service remains available",
+    "category": "Search",
+    "severity": "P3",
+    "team": "Search Engineering"
+  },
+  {
+    "text": "Search API response time has increased",
+    "category": "Search",
+    "severity": "P3",
+    "team": "Search Engineering"
+  },
+  {
+    "text": "Minor user interface issue affecting the settings page",
+    "category": "User Interface",
+    "severity": "P4",
+    "team": "Frontend Engineering"
+  },
+  {
+    "text": "A visual issue was reported in the application settings page",
+    "category": "User Interface",
+    "severity": "P4",
+    "team": "Frontend Engineering"
+  }
+]

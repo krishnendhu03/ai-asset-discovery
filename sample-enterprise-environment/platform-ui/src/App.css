@@ -1,0 +1,405 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #f5f7fb;
+  color: #172033;
+}
+
+button {
+  font-family: inherit;
+}
+
+.platform {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+  width: 280px;
+  min-height: 100vh;
+  background: #0d1b2a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 18px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 30px;
+}
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  font-weight: 800;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.brand span {
+  display: block;
+  margin-top: 3px;
+  color: #8ea1b8;
+  font-size: 11px;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.sidebar-section {
+  flex: 1;
+}
+
+.section-label {
+  color: #70839b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 0 12px;
+  margin: 4px 0 12px;
+}
+
+.nav-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #aebed0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  padding: 14px 12px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.nav-item.active {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0.25),
+    rgba(37, 99, 235, 0.08)
+  );
+  color: white;
+  box-shadow: inset 3px 0 0 #3b82f6;
+}
+
+.nav-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-icon {
+  background: #2563eb;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nav-content strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nav-content small {
+  font-size: 10px;
+  color: #72869d;
+  line-height: 1.3;
+}
+
+.nav-item.active .nav-content small {
+  color: #9fb9dc;
+}
+
+/* =========================
+   SIDEBAR BOTTOM
+========================= */
+
+.sidebar-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+}
+
+.system-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.system-status div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.system-status strong {
+  font-size: 11px;
+}
+
+.system-status small {
+  color: #71849a;
+  font-size: 10px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main {
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  min-height: 100vh;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar {
+  height: 100px;
+  background: white;
+  border-bottom: 1px solid #e6eaf0;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.breadcrumb {
+  color: #8b98aa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.topbar h2 {
+  margin: 5px 0 2px;
+  font-size: 22px;
+  color: #162033;
+}
+
+.topbar p {
+  margin: 0;
+  color: #7c899b;
+  font-size: 12px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3f5065;
+  font-size: 12px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e8eef8;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.user div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user strong {
+  font-size: 11px;
+}
+
+.user small {
+  color: #8995a5;
+  font-size: 10px;
+}
+
+/* =========================
+   APPLICATION AREA
+========================= */
+
+.application-container {
+  padding: 24px 28px 28px;
+}
+
+.application-header {
+  height: 62px;
+  background: white;
+  border: 1px solid #e4e9f0;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.application-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2563eb;
+}
+
+.application-header h3 {
+  margin: 3px 0 0;
+  font-size: 16px;
+}
+
+.app-status {
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.iframe-wrapper {
+  background: white;
+  border: 1px solid #e4e9f0;
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+  height: calc(100vh - 210px);
+  min-height: 600px;
+}
+
+.application-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: white;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+  }
+
+  .nav-content small {
+    display: none;
+  }
+
+  .topbar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .sidebar {
+    width: 70px;
+    padding: 20px 10px;
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 5px 0 25px;
+  }
+
+  .brand > div:last-child,
+  .section-label,
+  .nav-content,
+  .system-status div {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+  }
+
+  .main {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
+
+  .application-container {
+    padding: 12px;
+  }
+
+  .topbar {
+    padding: 15px;
+  }
+}

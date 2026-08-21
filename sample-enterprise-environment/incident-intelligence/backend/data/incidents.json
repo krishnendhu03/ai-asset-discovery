@@ -1,0 +1,26 @@
+[
+  {
+    "id": "INC-1001",
+    "title": "Payment API returning timeout errors",
+    "description": "Multiple customers are unable to complete payments. The payment service is returning intermittent timeout errors. The issue started shortly after the latest deployment.",
+    "service": "Payment API",
+    "status": "Open",
+    "created_at": "2026-08-21T09:15:00Z"
+  },
+  {
+    "id": "INC-1002",
+    "title": "Users intermittently unable to log in",
+    "description": "Several users are reporting intermittent authentication failures. Login requests sometimes return an authentication service error.",
+    "service": "Identity Service",
+    "status": "Open",
+    "created_at": "2026-08-21T09:32:00Z"
+  },
+  {
+    "id": "INC-1003",
+    "title": "Document processing requests are delayed",
+    "description": "Document processing requests are taking several minutes to complete. The queue has grown significantly since this morning.",
+    "service": "Document Processing",
+    "status": "Investigating",
+    "created_at": "2026-08-21T10:05:00Z"
+  }
+]
