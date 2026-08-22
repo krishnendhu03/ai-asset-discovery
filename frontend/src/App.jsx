@@ -554,11 +554,9 @@ function App() {
                         {item.value || item}
                       </div>
 
-                      {item.file && (
-                        <div className="evidence-file">
-                          {item.file}
-                        </div>
-                      )}
+                      <div className="evidence-file">
+                       {item.file?.replace(/^.*[\\/]repository[\\/]/i, "")}
+                     </div>
 
                     </div>
 

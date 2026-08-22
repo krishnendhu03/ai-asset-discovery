@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class Evidence(BaseModel):
     type: str
     value: str
     file: str
+    line_number: Optional[int] = None
 
 
 class AIAsset(BaseModel):
