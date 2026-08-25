@@ -2,6 +2,13 @@ from fastapi import FastAPI
 
 from app.routes.discovery import router as discovery_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import Base, engine
+from app.models.database import AssetRecord
+
+
+Base.metadata.create_all(
+    bind=engine
+)
 
 app = FastAPI(
     title="AI Asset Discovery",

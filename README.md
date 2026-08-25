@@ -1,25 +1,38 @@
 AI Asset Discovery
 
-An enterprise-focused AI Asset Discovery platform that identifies AI systems and AI-related usage across software repositories and builds an evidence-backed inventory.
+An enterprise-focused AI Asset Discovery platform that identifies AI systems
+and AI-related usage across software repositories and builds an evidence-backed
+inventory.
 
-1.Problem
+The platform is designed to discover AI functionality while providing
+supporting evidence, confidence levels, and reviewable asset information rather
+than relying only on keyword matches.
 
-Organizations may have AI systems operating across different applications and repositories without having a reliable inventory of where AI is being used.
 
-Simply searching for AI-related package names or model names is not sufficient because:
+1. Problem
 
--An AI SDK may be installed but never used.
--A model name may only appear in documentation or comments.
--A repository may contain genuine AI API usage.
--Different pieces of evidence may need to be combined before identifying an AI asset.
+Organizations may have AI systems operating across different applications and
+repositories without having a reliable inventory of where AI is being used.
 
-The goal of this project is to provide a practical approach for discovering AI assets while reducing false positives.
+Simply searching for AI-related package names or model names is not sufficient
+because:
 
-2.Approach
+- An AI SDK may be installed but never used.
+- A model name may only appear in documentation or comments.
+- A repository may contain genuine AI API usage.
+- A repository may contain locally trained machine-learning models.
+- Model artifacts may exist without obvious source-code references.
+- Different pieces of evidence may need to be combined before identifying an
+  AI asset.
+
+The goal of this project is to provide a practical approach for discovering AI
+assets while reducing false positives and providing evidence.
+
+2. Approach
 
 The system follows an evidence-driven discovery process:
 
-```text
+text
 Repository
     ↓
 Repository scanning
@@ -34,6 +47,8 @@ AI asset classification
     ↓
 Confidence scoring
     ↓
+Application aggregation
+    ↓
 Enterprise AI inventory
 
 The system does not treat every AI-related reference as a confirmed AI system.
@@ -41,11 +56,16 @@ The system does not treat every AI-related reference as a confirmed AI system.
 Instead, evidence is evaluated to determine whether the repository contains:
 
 Actual AI usage
+Machine-learning model execution
+AI API usage
+Model artifacts
 Potential AI references
-Unused AI SDKs
-Model references without actual usage
+AI dependencies without recognized execution
 
-3.AI Asset Discovery
+This approach allows the system to distinguish stronger evidence from weaker
+signals.
+
+3. AI Asset Discovery
 
 The discovery engine analyzes repository content for signals such as:
 
@@ -55,6 +75,10 @@ Model references
 AI API calls
 Import statements
 Dependency declarations
+Machine-learning training calls
+Machine-learning prediction calls
+Model loading
+Trained model artifacts
 Supporting source-code evidence
 
 Detected information is converted into an AI asset record.
@@ -70,72 +94,139 @@ Status
 Location
 Application
 Purpose
+Tools
 Discovery source
 Category
 Supporting evidence
+Currently recognized AI/ML technologies
+
+The discovery engine includes patterns for technologies such as:
+
+OpenAI
+Anthropic
+Hugging Face Transformers
+PyTorch
+TensorFlow
+Scikit-learn
+LangChain
+Model execution
+
+The scanner detects patterns such as:
+
+predict()
+predict_proba()
+fit()
+fit_transform()
+Model loading
+
+The scanner detects trained models loaded using mechanisms such as:
+
+joblib
+pickle
+Model artifacts
+
+The scanner recognizes model artifact formats including:
+
+.joblib
+.pkl
+.pickle
+.pt
+.pth
+.h5
+.keras
+.onnx
 
 4. Confidence Classification
 
-The platform uses confidence levels to distinguish stronger evidence from weaker signals.
+The platform uses confidence levels to distinguish stronger evidence from weaker
+signals.
 
 High Confidence
 
-Used when the repository contains strong evidence of actual AI usage.
+Used when the repository contains strong evidence of actual AI or
+machine-learning usage.
 
-Example:
+Examples include:
 
-OpenAI SDK
-     +
-Model reference
-     +
-Actual API/model invocation
+AI API invocation
+        +
+Actual model/API execution
+        ↓
+High Confidence
+
+or:
+
+Model loading
+        +
+Model prediction
+        ↓
+High Confidence
+
+AI/ML library usage combined with genuine model execution can also result in
+high confidence.
+
 Medium Confidence
 
-Used when meaningful AI-related evidence exists but is not sufficient for a high-confidence classification.
+Used when meaningful AI-related evidence exists but does not meet the stronger
+conditions for high confidence.
 
+Examples include:
+
+A detected model artifact
+Model execution without stronger corroborating evidence
 Low Confidence
 
-Used for weak or ambiguous signals.
+Used for weaker or ambiguous signals.
 
-Examples:
+Examples include:
 
-AI SDK detected but not used
-Model reference without an invocation
-AI-related configuration without supporting usage
+AI/ML library detected without recognized model execution
+AI-related reference without sufficient execution evidence
 
-These cases are surfaced for review rather than automatically treated as confirmed AI systems.
+These cases are surfaced for review rather than automatically treated as
+confirmed AI systems.
 
 5. False-Positive & Edge-Case Handling
 
 False-positive handling is a core part of the discovery approach.
 
-Unused SDK
+The presence of an AI SDK alone should not automatically create a
+high-confidence AI asset.
+
+For example:
+
 requirements.txt
        ↓
-OpenAI package detected
+Scikit-learn dependency detected
        ↓
 Source-code analysis
        ↓
-No actual usage found
-       ↓
-Low Confidence
-       ↓
-Needs Review
-
-The presence of an AI SDK alone should not automatically create a high-confidence AI asset.
-
-Model Reference Only
-Model name detected
-       ↓
-No AI API invocation
+No recognized AI/model execution
        ↓
 Potential AI Reference
        ↓
-Low Confidence
-       ↓
 Needs Review
 
-This allows the system to distinguish actual AI usage from simple references.
+Similarly, a model name appearing in source code does not automatically prove
+that the model is being used.
+
+The scanner also ignores common directories that are unlikely to provide useful
+application-level evidence:
+
+node_modules
+.git
+__pycache__
+.venv
+venv
+env
+.env
+dist
+build
+
+Known test/reference files and backup/test model artifacts are also filtered
+during application-level aggregation where appropriate.
+
+This allows the inventory to focus on meaningful application evidence.
 
 6. Supporting Evidence
 
@@ -143,19 +234,44 @@ Each discovered asset can contain evidence explaining why it was identified.
 
 Examples include:
 
-Library usage
-Model usage
-Provider references
-Source files
-File locations
+library_usage
+OpenAI imported or referenced
+model_usage
+OpenAI chat completion invocation detected
+model_usage
+Machine-learning model prediction invocation detected
+model_artifact
+Trained model artifact detected: ai_assist_model.joblib
 
 The UI exposes this evidence through the asset details panel.
 
-This provides traceability and allows a reviewer to understand the reasoning behind a discovery instead of seeing only a final classification.
+Each evidence item can include:
+
+Evidence type
+Description
+Repository-relative file path
+Line number where applicable
+
+For example:
+
+incident-intelligence/backend/real_ai_usage.py
+Line 5
+
+Absolute local machine paths are intentionally removed from the UI.
+
+Instead of displaying:
+
+C:\Users\...\Desktop\...\sample-enterprise-environment\...
+
+the application displays a clean repository-relative path.
+
+This improves portability and avoids exposing machine-specific filesystem
+information.
 
 7. GitHub Repository Scanning
 
-The platform supports scanning a GitHub repository by entering its repository URL.
+The platform supports scanning a GitHub repository by entering its repository
+URL.
 
 Example:
 
@@ -165,34 +281,61 @@ The frontend sends the repository URL to the FastAPI backend.
 
 The backend then:
 
-Retrieves the repository.
-Analyzes its files and dependencies.
+Validates the repository URL.
+Verifies that the URL points to GitHub.
+Creates a temporary directory.
+Performs a shallow Git clone.
+Analyzes the cloned repository.
 Detects AI-related evidence.
 Classifies discovered assets.
 Calculates confidence.
+Aggregates findings by application.
 Returns the AI asset inventory to the frontend.
+Removes the temporary cloned repository.
 
-This allows the discovery workflow to be demonstrated against repositories outside the local project.
+This allows the discovery workflow to be demonstrated against repositories
+outside the local project.
+
+Discovery source
+
+The system distinguishes between:
+
+Local Repository
+
+and:
+
+Git Repository
+
+A local scan is reported as:
+
+Local Repository
+
+A GitHub scan is reported as:
+
+Git Repository
+
+This ensures that the UI reflects the actual source from which the discovery
+was performed.
 
 8. User Interface & Results
 
 The frontend provides an enterprise-style AI Asset Inventory.
 
-The dashboard displays:
+The inventory allows assets to be filtered by confidence:
 
-Total Assets
-High Confidence
-Medium Confidence
-Low Confidence
+All
+High
+Medium
+Low
 
 The inventory table provides:
 
 Field	Description
 Asset	Discovered AI application/system
-Type	AI application or potential AI reference
+Type	AI application, model artifact, or potential AI reference
 Model	Detected model
-Provider	AI provider
-Confidence	High, Medium or Low
+Provider	Detected AI provider
+Confidence	High, Medium, or Low
 Status	Discovery/review status
 
 Selecting an asset opens a detailed view containing:
@@ -200,6 +343,7 @@ Selecting an asset opens a detailed view containing:
 Asset information
 Confidence
 Status
+Type
 Model
 Provider
 Location
@@ -207,10 +351,19 @@ Application
 Purpose
 Discovery source
 Category
+Tools
 Supporting evidence
+
+The interface also provides a Start New Repository Scan workflow with:
+
+Local Repository
+GitHub Repository
+
+
 9. Test Repository
 
-The project contains a dedicated test-repository with intentionally different discovery scenarios:
+The project contains a dedicated test repository with intentionally different
+discovery scenarios:
 
 test-repository/
 ├── document_processing_service.py
@@ -225,7 +378,8 @@ Model references
 AI SDKs that are not actually used
 AI-enabled application code
 
-This provides controlled examples for evaluating the discovery and false-positive handling.
+This provides controlled examples for evaluating discovery and false-positive
+handling.
 
 10. Sample Enterprise Environment
 
@@ -237,9 +391,36 @@ sample-enterprise-environment/
 ├── incident-intelligence/
 └── platform-ui/
 
-This represents a larger enterprise-style environment containing multiple applications.
+This represents a larger enterprise-style environment containing multiple
+applications.
 
-It is included to demonstrate how AI discovery can be applied across a broader software environment rather than only a small test repository.
+AI Assist
+
+Demonstrates:
+
+Scikit-learn dependency
+Machine-learning model training
+Model artifact detection
+Joblib model loading
+Model prediction
+Enterprise Knowledge
+
+Demonstrates:
+
+Enterprise knowledge processing
+Local machine-learning functionality
+Model artifacts
+Incident Intelligence
+
+Demonstrates:
+
+OpenAI usage
+GPT model detection
+Local machine-learning functionality
+Multiple model artifacts
+
+The sample environment allows the discovery engine to be tested against
+different AI usage patterns rather than relying on a single example.
 
 11. Project Structure
 ai-asset-discovery/
@@ -265,6 +446,13 @@ ai-asset-discovery/
 ├── .gitignore
 └── README.md
 
+The backend contains the API, models, routes, and discovery engine.
+
+The frontend contains the inventory interface and repository scanning workflow.
+
+The sample enterprise environment provides controlled applications for
+testing the discovery engine.
+
 12. Technology Stack
 Frontend
 React
@@ -275,16 +463,23 @@ Vite
 Backend
 Python
 FastAPI
+Pydantic
 Discovery
 Repository analysis
 Source-code analysis
 Dependency analysis
+AI/ML pattern detection
+Model artifact detection
+Evidence collection
 Evidence correlation
 Confidence classification
+Application aggregation
 False-positive handling
 Version Control
 Git
 GitHub
+
+
 13. How to Run
 Backend
 
@@ -307,59 +502,196 @@ npm run dev
 
 Open the URL provided by Vite.
 
+Running a Local Repository Scan
+
+From the UI:
+
++ New Scan
+    ↓
+Local Repository
+    ↓
+Enter repository path
+    ↓
+Start Scan
+
+The resulting assets are marked:
+
+Discovery Source:
+Local Repository
+Running a GitHub Repository Scan
+
+From the UI:
+
++ New Scan
+    ↓
+GitHub Repository
+    ↓
+Enter GitHub repository URL
+    ↓
+Start Scan
+
+The resulting assets are marked:
+
+Discovery Source:
+Git Repository
+
+
 14. Example Discovery Flow
-User enters GitHub repository URL
+User enters repository
               ↓
         Start New Scan
               ↓
        FastAPI backend
               ↓
-      Repository retrieval
+    Local path / Git clone
               ↓
        Repository analysis
+              ↓
+   Source & dependency analysis
               ↓
       Evidence extraction
               ↓
      Evidence correlation
               ↓
-    Confidence classification
+    Asset classification
+              ↓
+     Confidence scoring
+              ↓
+    Application aggregation
               ↓
        AI Asset Inventory
               ↓
       Supporting Evidence
-      
+
+The important part of the flow is that the system does not immediately
+classify a repository as an AI application after finding a single keyword.
+
+Evidence is collected first and classification happens after the evidence has
+been evaluated.
+
 15. Key Design Decisions
 Evidence before classification
 
 AI-related keywords alone are not treated as proof of an AI system.
 
+The scanner first collects evidence and then determines how strongly that
+evidence supports an AI asset.
+
 Confidence instead of binary classification
 
 The system distinguishes strong evidence from ambiguous evidence.
 
+This allows reviewers to prioritize high-confidence discoveries while still
+reviewing weaker signals.
+
 False-positive handling
 
-Unused SDKs and model references are treated differently from actual AI API usage.
+Unused SDKs, model references, model artifacts, and actual AI API usage are
+treated differently.
+
+This reduces the risk of creating misleading AI inventory entries.
 
 Explainability
 
-Supporting evidence is displayed so reviewers can understand why an asset was discovered.
+Supporting evidence is displayed so reviewers can understand why an asset was
+discovered.
 
-Enterprise inventory
+The goal is not only to say:
 
-The result is presented as an inventory of AI assets rather than simply a list of matching files.
+AI detected
 
-16. Outcome
+but to show:
+
+What was detected
+        +
+Where it was detected
+        +
+What type of evidence it represents
+        +
+How confident the discovery is
+Repository-relative evidence
+
+Machine-specific absolute paths are not exposed in the final inventory.
+
+Evidence is normalized to repository-relative paths so that results remain
+portable and easier to review.
+
+Application-level aggregation
+
+Multiple files and model artifacts belonging to the same application are
+aggregated into an application-level AI asset.
+
+For example:
+
+AI Assist
+    ├── train_model.py
+    ├── ai_assist.py
+    ├── requirements.txt
+    └── ai_assist_model.joblib
+
+can be represented as one application-level asset:
+
+AI Assist
+
+This makes the inventory more useful at an enterprise level.
+
+Local and remote discovery
+
+The same discovery engine is used for both:
+
+Local Repository
+
+and:
+
+Git Repository
+
+This keeps the discovery logic consistent regardless of how the repository
+was provided.
+
+16. Database
+
+The platform uses PostgreSQL as its relational database.
+
+SQLAlchemy is used as the ORM layer between the FastAPI backend and PostgreSQL.
+
+Discovered AI assets are persisted in the `ai_assets` table, including:
+
+- Asset ID
+- Asset name
+- Asset type
+- Model
+- Provider
+- Location
+- Application
+- Purpose
+- Tools
+- Discovery source
+- Status
+- Category
+- Confidence
+- Description
+
+The database provides persistent storage for discovered AI assets instead of relying only on in-memory application state.
+
+17. Outcome
 
 The project demonstrates an end-to-end approach for:
 
 Discovering AI assets in repositories
+Scanning local repositories
 Scanning GitHub repositories
 Building an AI asset inventory
+Detecting AI API usage
+Detecting machine-learning execution
+Detecting trained model artifacts
 Collecting supporting evidence
 Assigning confidence levels
 Handling false positives and edge cases
+Aggregating findings by application
+Displaying repository-relative evidence paths
+Identifying the actual discovery source
 Reviewing discovered assets through an enterprise-style UI
 Demonstrating discovery against a sample enterprise environment
 
-The focus is not only on identifying AI-related code, but on providing evidence-backed and reviewable AI asset discovery.
+The focus is not only on identifying AI-related code, but on providing
+evidence-backed, explainable, and reviewable AI asset discovery.
