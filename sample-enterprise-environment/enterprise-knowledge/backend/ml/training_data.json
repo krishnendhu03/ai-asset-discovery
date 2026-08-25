@@ -1,0 +1,127 @@
+[
+  {
+    "text": "What should I do for a P1 incident?",
+    "category": "p1"
+  },
+  {
+    "text": "How should a critical incident be handled?",
+    "category": "p1"
+  },
+  {
+    "text": "What is the procedure for a major outage?",
+    "category": "p1"
+  },
+  {
+    "text": "What is the response time for P1 incidents?",
+    "category": "p1"
+  },
+
+  {
+    "text": "What should I do for a P2 incident?",
+    "category": "p2"
+  },
+  {
+    "text": "What is the response time for high priority incidents?",
+    "category": "p2"
+  },
+  {
+    "text": "How should a high severity incident be handled?",
+    "category": "p2"
+  },
+  {
+    "text": "When should a P2 incident be acknowledged?",
+    "category": "p2"
+  },
+
+  {
+    "text": "What should I do for a P3 incident?",
+    "category": "p3"
+  },
+  {
+    "text": "What is the response time for medium priority incidents?",
+    "category": "p3"
+  },
+  {
+    "text": "How should a medium severity incident be handled?",
+    "category": "p3"
+  },
+  {
+    "text": "When should a P3 incident be acknowledged?",
+    "category": "p3"
+  },
+
+  {
+    "text": "How do I request production access?",
+    "category": "access_approval"
+  },
+  {
+    "text": "Who approves production access?",
+    "category": "access_approval"
+  },
+  {
+    "text": "What approval is required for an access request?",
+    "category": "access_approval"
+  },
+  {
+    "text": "Who needs to approve production access?",
+    "category": "access_approval"
+  },
+
+  {
+  "text": "When should an incident be escalated?",
+  "category": "escalation"
+  },
+  {
+  "text": "How do I escalate an incident?",
+  "category": "escalation"
+  },
+  {
+  "text": "When should support contact engineering?",
+  "category": "escalation"
+  },
+  {
+  "text": "What is the support escalation procedure?",
+  "category": "escalation"
+  },
+  {
+  "text": "What should support do when a serious incident cannot be fixed?",
+  "category": "escalation"
+  },
+  {
+  "text": "What should support do if an issue cannot be resolved?",
+  "category": "escalation"
+  },
+  {
+  "text": "When should an unresolved issue be sent to engineering?",
+  "category": "escalation"
+  },
+  {
+  "text": "When should engineering be involved in a support issue?",
+  "category": "escalation"
+  },
+  {
+  "text": "What happens when support cannot resolve an incident?",
+  "category": "escalation"
+  },
+  {
+  "text": "When should support hand an issue over to engineering?",
+  "category": "escalation"
+  },
+
+  {
+    "text": "What tools do support employees use?",
+    "category": "support_tools"
+  },
+  {
+    "text": "Which tool is used for incident tracking?",
+    "category": "support_tools"
+  },
+  {
+    "text": "Where can I find operational guidance?",
+    "category": "support_tools"
+  },
+  {
+    "text": "What is the incident management platform used for?",
+    "category": "support_tools"
+  }
+]

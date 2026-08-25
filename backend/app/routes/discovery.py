@@ -7,7 +7,10 @@ import shutil
 import subprocess
 import tempfile
 
-from app.services.discovery_engine import discover_ai_assets
+from app.services.discovery_engine import (
+    discover_ai_assets,
+    aggregate_application_assets,
+)
 
 
 router = APIRouter(
@@ -21,24 +24,66 @@ class DiscoveryRequest(BaseModel):
     repository_path: str | None = None
 
 
-def clone_repository(repository_url: str, target_directory: str):
+def clone_repository(
+    repository_url: str,
+    target_directory: str,
+):
     """
-    Clone a remote Git repository into a temporary directory.
+    Clone a remote GitHub repository into a temporary directory.
     """
+
+    repository_url = repository_url.strip()
 
     parsed_url = urlparse(repository_url)
 
-    if parsed_url.scheme != "https":
+    # -----------------------------------------------------
+    # URL validation
+    # -----------------------------------------------------
+
+    if parsed_url.scheme.lower() != "https":
         raise ValueError(
             "Repository URL must use HTTPS."
         )
 
-    if not parsed_url.netloc:
+    if parsed_url.netloc.lower() not in {
+        "github.com",
+        "www.github.com",
+    }:
         raise ValueError(
-            "Invalid repository URL."
+            "Only GitHub repository URLs are supported."
         )
 
+    # -----------------------------------------------------
+    # Extract repository path
+    # -----------------------------------------------------
+
+    repository_path = (
+        parsed_url.path
+        .strip("/")
+        .removesuffix(".git")
+    )
+
+    parts = repository_path.split("/")
+
+    if len(parts) != 2:
+        raise ValueError(
+            "Invalid GitHub repository URL. "
+            "Use https://github.com/owner/repository"
+        )
+
+    owner, repository = parts
+
+    if not owner or not repository:
+        raise ValueError(
+            "Invalid GitHub repository URL."
+        )
+
+    # -----------------------------------------------------
+    # Clone repository
+    # -----------------------------------------------------
+
     try:
+
         subprocess.run(
             [
                 "git",
@@ -55,22 +100,48 @@ def clone_repository(repository_url: str, target_directory: str):
         )
 
     except FileNotFoundError:
+
         raise ValueError(
-            "Git is not installed or is not available on the server."
+            "Git is not installed or is not available "
+            "on the server."
         )
 
     except subprocess.TimeoutExpired:
+
         raise ValueError(
             "Repository clone timed out."
         )
 
     except subprocess.CalledProcessError as error:
-        message = error.stderr.strip()
+
+        message = (
+            error.stderr.strip()
+            or error.stdout.strip()
+            or "Unknown Git error."
+        )
+
+        if (
+            "repository not found" in message.lower()
+            or "not found" in message.lower()
+        ):
+            raise ValueError(
+                "GitHub repository was not found. "
+                "Check the owner and repository name."
+            )
+
+        if (
+            "authentication" in message.lower()
+            or "permission" in message.lower()
+            or "could not read username" in message.lower()
+        ):
+            raise ValueError(
+                "This repository may be private or "
+                "requires authentication."
+            )
 
         raise ValueError(
             f"Unable to clone repository: {message}"
         )
-
 
 @router.post("/scan")
 def scan_repository(request: DiscoveryRequest):
@@ -121,10 +192,13 @@ def scan_repository(request: DiscoveryRequest):
         # RUN EXISTING DISCOVERY ENGINE
         # =================================================
 
-        assets = discover_ai_assets(
+        raw_assets = discover_ai_assets(
             scan_path
         )
-
+        assets = aggregate_application_assets(
+            raw_assets,
+            scan_path
+        )
         # =================================================
         # MARK ACTUAL DISCOVERY SOURCE
         # =================================================

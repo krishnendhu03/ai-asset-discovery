@@ -60,6 +60,98 @@ STRONG_MODEL_USAGE_PATTERNS = [
 
 
 # =========================================================
+# LLM MODEL PATTERNS
+# =========================================================
+
+LLM_MODEL_PATTERNS = [
+    (
+        r"\bgpt[-_ ]?(?:4\.1|4o|4(?:\.[0-9]+)?|3\.5)\b",
+        "GPT model detected",
+    ),
+    (
+        r"\bclaude(?:[-_ ]?(?:2|3|3\.5|3\.7|4))?\b",
+        "Claude model detected",
+    ),
+    (
+        r"\bgemini(?:[-_ ]?(?:pro|flash|1\.5|2\.0|2\.5))?\b",
+        "Gemini model detected",
+    ),
+    (
+        r"\bllama(?:[-_ ]?(?:2|3|3\.1|3\.2|3\.3|4))?\b",
+        "Llama model detected",
+    ),
+    (
+        r"\bmistral(?:[-_ ]?(?:7b|8x7b|large|medium))?\b",
+        "Mistral model detected",
+    ),
+]
+
+
+# =========================================================
+# LLM EXECUTION PATTERNS
+# =========================================================
+
+LLM_EXECUTION_PATTERNS = [
+    (
+        r"\bchat\.completions\.create\s*\(",
+        "LLM chat completion invocation detected",
+    ),
+    (
+        r"\bresponses\.create\s*\(",
+        "LLM responses API invocation detected",
+    ),
+    (
+        r"\bmessages\.create\s*\(",
+        "LLM messages API invocation detected",
+    ),
+    (
+        r"\b(?:invoke|ainvoke)\s*\(",
+        "LLM invocation detected",
+    ),
+    (
+        r"\b(?:generate|agenerate)\s*\(",
+        "LLM generation invocation detected",
+    ),
+]
+
+
+# =========================================================
+# AI AGENT SIGNALS
+# =========================================================
+
+AI_AGENT_PATTERNS = [
+    (
+        r"\b(?:AI)?_?agent\b",
+        "AI agent reference detected",
+    ),
+    (
+        r"\bagents?\s*=",
+        "AI agent configuration detected",
+    ),
+    (
+        r"\btool_calls?\b",
+        "AI agent tool-call pattern detected",
+    ),
+    (
+        r"\bfunction_calls?\b",
+        "AI function-call pattern detected",
+    ),
+    (
+        r"\btools\s*=",
+        "AI agent tools configuration detected",
+    ),
+    (
+        r"\bfunctions\s*=",
+        "AI function configuration detected",
+    ),
+    (
+        r"\bAgent\s*\(",
+        "AI Agent object detected",
+    ),
+]
+
+
+# =========================================================
 # ML MODEL EXECUTION PATTERNS
 # =========================================================
 
@@ -102,7 +194,31 @@ SOURCE_EXTENSIONS = {
     ".ts",
     ".tsx",
 }
+# =========================================================
+# AI / ML CONFIGURATION & DEPENDENCY FILES
+# =========================================================
 
+CONFIGURATION_EXTENSIONS = {
+    ".toml",
+    ".yaml",
+    ".yml",
+    ".json",
+    ".lock",
+}
+
+DEPENDENCY_FILES = {
+    "requirements.txt",
+    "pyproject.toml",
+    "package.json",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "environment.yml",
+    "environment.yaml",
+    "dockerfile",
+    "docker-compose.yml",
+    ".env.example",
+}
 
 # =========================================================
 # DIRECTORIES TO IGNORE
@@ -126,12 +242,16 @@ IGNORED_DIRECTORIES = {
 # =========================================================
 
 def read_text_file(file_path: Path) -> str:
+
     try:
+
         return file_path.read_text(
             encoding="utf-8",
             errors="ignore",
         )
+
     except Exception:
+
         return ""
 
 
@@ -146,9 +266,8 @@ def remove_comments(content: str) -> str:
     This prevents commented-out AI imports/API calls from
     becoming evidence.
 
-    Note:
-    This is intentionally lightweight rather than a full
-    language parser because the scanner also handles JS/TS.
+    This is intentionally lightweight because the scanner
+    also handles JavaScript/TypeScript.
     """
 
     lines = []
@@ -177,8 +296,15 @@ def normalize_content(content: str) -> str:
     Normalize source code for more reliable regex matching.
     """
 
-    content = content.replace("\r\n", "\n")
-    content = content.replace("\r", "\n")
+    content = content.replace(
+        "\r\n",
+        "\n",
+    )
+
+    content = content.replace(
+        "\r",
+        "\n",
+    )
 
     return content
 
@@ -191,6 +317,47 @@ def detect_model(
     content: str,
     file_path: Path,
 ) -> str:
+
+    # -----------------------------------------------------
+    # Known LLM models
+    # -----------------------------------------------------
+
+    llm_patterns = [
+        (
+            r"\bgpt[-_ ]?(?:4\.1|4o|4(?:\.[0-9]+)?|3\.5)\b",
+            "GPT-4.x",
+        ),
+        (
+            r"\bclaude(?:[-_ ]?(?:2|3|3\.5|3\.7|4))?\b",
+            "Claude",
+        ),
+        (
+            r"\bgemini(?:[-_ ]?(?:pro|flash|1\.5|2\.0|2\.5))?\b",
+            "Gemini",
+        ),
+        (
+            r"\bllama(?:[-_ ]?(?:2|3|3\.1|3\.2|3\.3|4))?\b",
+            "Llama",
+        ),
+        (
+            r"\bmistral(?:[-_ ]?(?:7b|8x7b|large|medium))?\b",
+            "Mistral",
+        ),
+    ]
+
+    for pattern, display_name in llm_patterns:
+
+        if re.search(
+            pattern,
+            content,
+            re.IGNORECASE,
+        ):
+
+            return display_name
+
+    # -----------------------------------------------------
+    # Explicit model assignment
+    # -----------------------------------------------------
 
     model_patterns = [
         r'\bmodel\s*=\s*["\']([^"\']+)["\']',
@@ -218,9 +385,14 @@ def detect_model(
                 "development",
                 "production",
                 "model",
+                "raw",
             }
 
-            if model_name.lower() not in generic_values:
+            if (
+                model_name.lower()
+                not in generic_values and len(model_name) >= 3
+            ):
+
                 return model_name
 
     # -----------------------------------------------------
@@ -234,6 +406,7 @@ def detect_model(
     )
 
     if joblib_match:
+
         return Path(
             joblib_match.group(1)
         ).stem
@@ -257,6 +430,7 @@ def detect_model(
         )
 
         if artifact_match:
+
             return Path(
                 artifact_match.group(1)
             ).stem
@@ -269,6 +443,7 @@ def detect_model(
         file_path.suffix.lower()
         in MODEL_ARTIFACT_EXTENSIONS
     ):
+
         return file_path.stem
 
     return "Not detected"
@@ -281,6 +456,51 @@ def detect_model(
 def detect_provider(content: str) -> str:
 
     providers = []
+
+    # -----------------------------------------------------
+    # OpenAI
+    # -----------------------------------------------------
+
+    if re.search(
+        r"\bopenai\b"
+        r"|\bfrom\s+openai\s+import\b"
+        r"|\bOpenAI\s*\(",
+        content,
+        re.IGNORECASE,
+    ):
+        providers.append("OpenAI")
+
+    # -----------------------------------------------------
+    # Azure OpenAI
+    # -----------------------------------------------------
+
+    if re.search(
+        r"\bazure\.identity\b"
+        r"|\bazure[-_]openai\b"
+        r"|\bAzureOpenAI\b"
+        r"|\bazure_endpoint\b",
+        content,
+        re.IGNORECASE,
+    ):
+        providers.append("Azure OpenAI")
+
+    # -----------------------------------------------------
+    # Google / Vertex AI
+    # -----------------------------------------------------
+
+    if re.search(
+        r"\bvertexai\b"
+        r"|\bgoogle\.cloud\b"
+        r"|\bGenerativeModel\b"
+        r"|\bgoogle-generativeai\b",
+        content,
+        re.IGNORECASE,
+    ):
+        providers.append("Google Vertex AI")
+
+    # -----------------------------------------------------
+    # Standard AI libraries
+    # -----------------------------------------------------
 
     for library, display_name in AI_LIBRARY_PATTERNS.items():
 
@@ -296,35 +516,12 @@ def detect_provider(content: str) -> str:
             content,
             re.IGNORECASE,
         ):
-            providers.append(display_name)
-
-    # -----------------------------------------------------
-    # Azure OpenAI
-    # -----------------------------------------------------
-
-    if re.search(
-        r"\bazure\.identity\b"
-        r"|\bazure_openai\b"
-        r"|\bAzureOpenAI\b",
-        content,
-        re.IGNORECASE,
-    ):
-        providers.append("Azure OpenAI")
-
-    # -----------------------------------------------------
-    # Google / Vertex AI
-    # -----------------------------------------------------
-
-    if re.search(
-        r"\bvertexai\b"
-        r"|\bgoogle\.cloud\b"
-        r"|\bGenerativeModel\b",
-        content,
-        re.IGNORECASE,
-    ):
-        providers.append("Google Vertex AI")
+            providers.append(
+                display_name
+            )
 
     if providers:
+
         return ", ".join(
             dict.fromkeys(providers)
         )
@@ -337,6 +534,24 @@ def detect_provider(content: str) -> str:
 # =========================================================
 
 def detect_location(content: str) -> str:
+
+    locations = []
+
+    # -----------------------------------------------------
+    # OpenAI / Anthropic cloud
+    # -----------------------------------------------------
+
+    if re.search(
+        r"\bopenai\b"
+        r"|\bchat\.completions\b"
+        r"|\bresponses\.create\b"
+        r"|\bembeddings\.create\b"
+        r"|\banthropic\b"
+        r"|\bmessages\.create\b",
+        content,
+        re.IGNORECASE,
+    ):
+        locations.append("Cloud")
 
     # -----------------------------------------------------
     # AWS
@@ -359,7 +574,8 @@ def detect_location(content: str) -> str:
             content,
             re.IGNORECASE,
         ):
-            return "AWS"
+            locations.append("AWS")
+            break
 
     # -----------------------------------------------------
     # Azure
@@ -379,7 +595,8 @@ def detect_location(content: str) -> str:
             content,
             re.IGNORECASE,
         ):
-            return "Azure"
+            locations.append("Azure")
+            break
 
     # -----------------------------------------------------
     # Google Cloud
@@ -390,6 +607,7 @@ def detect_location(content: str) -> str:
         r"\bgoogle cloud\b",
         r"\bgoogle\.cloud\b",
         r"\bvertexai\b",
+        r"\bGenerativeModel\b",
     ]
 
     for pattern in gcp_patterns:
@@ -399,10 +617,21 @@ def detect_location(content: str) -> str:
             content,
             re.IGNORECASE,
         ):
-            return "Google Cloud"
+            locations.append("Google Cloud")
+            break
+
+    # -----------------------------------------------------
+    # Remove duplicates
+    # -----------------------------------------------------
+
+    locations = list(
+        dict.fromkeys(locations)
+    )
+
+    if locations:
+        return " / ".join(locations)
 
     return "Not detected"
-
 
 # =========================================================
 # DETECT PURPOSE
@@ -414,6 +643,55 @@ def detect_purpose(
 ) -> str:
 
     content_lower = content.lower()
+
+    # -----------------------------------------------------
+    # Customer support
+    # -----------------------------------------------------
+
+    if (
+        "customer support" in content_lower
+        or "customer-support" in content_lower
+    ):
+
+        if (
+            "summar" in content_lower
+            or "response" in content_lower
+        ):
+
+            return (
+                "Generate and summarize "
+                "customer-support responses"
+            )
+
+        return "Provide customer-support assistance"
+
+    # -----------------------------------------------------
+    # Incident intelligence
+    # -----------------------------------------------------
+
+    if (
+        "incident" in content_lower
+        and (
+            "classif" in content_lower
+            or "severity" in content_lower
+        )
+    ):
+
+        return "Investigate and classify incidents"
+
+    # -----------------------------------------------------
+    # Enterprise knowledge
+    # -----------------------------------------------------
+
+    if (
+        "enterprise" in content_lower
+        and (
+            "knowledge" in content_lower
+            or "search" in content_lower
+        )
+    ):
+
+        return "Search and analyze enterprise knowledge"
 
     # -----------------------------------------------------
     # Embeddings
@@ -429,7 +707,10 @@ def detect_purpose(
             or "document" in content_lower
             or "retrieval" in content_lower
         ):
-            return "Generate embeddings for document search"
+
+            return (
+                "Generate embeddings for document search"
+            )
 
         return "Generate embeddings"
 
@@ -441,7 +722,9 @@ def detect_purpose(
         "chat.completions.create" in content_lower
         or "responses.create" in content_lower
         or "messages.create" in content_lower
+        or "llm invocation detected" in content_lower
     ):
+
         return "Generate AI responses"
 
     # -----------------------------------------------------
@@ -449,6 +732,7 @@ def detect_purpose(
     # -----------------------------------------------------
 
     if "predict_proba" in content_lower:
+
         return "Generate model probability predictions"
 
     # -----------------------------------------------------
@@ -459,6 +743,7 @@ def detect_purpose(
         r"\.[Pp]redict\s*\(",
         content,
     ):
+
         return "Generate model predictions"
 
     # -----------------------------------------------------
@@ -469,6 +754,7 @@ def detect_purpose(
         r"\.(?:fit|fit_transform)\s*\(",
         content,
     ):
+
         return "Train a machine-learning model"
 
     # -----------------------------------------------------
@@ -479,7 +765,11 @@ def detect_purpose(
         item.type == "model_artifact"
         for item in evidence
     ):
-        return "Provide a trained machine-learning model"
+
+        return (
+            "Provide a trained "
+            "machine-learning model"
+        )
 
     return "Not detected"
 
@@ -501,6 +791,7 @@ def detect_application(
     ).strip()
 
     if not readable:
+
         return "Not detected"
 
     return readable.title()
@@ -522,9 +813,13 @@ def find_match_line(
     )
 
     if not match:
+
         return 0
 
-    return content[:match.start()].count("\n") + 1
+    return (
+        content[:match.start()].count("\n")
+        + 1
+    )
 
 
 # =========================================================
@@ -538,6 +833,7 @@ def add_evidence(
     file_path: Path,
     line_number: int | None = None,
 ):
+
     evidence.append(
         Evidence(
             type=evidence_type,
@@ -571,11 +867,12 @@ def scan_file(
     )
 
     if not content.strip():
+
         return evidence
 
-    # -----------------------------------------------------
-    # Detect AI / ML library imports
-    # -----------------------------------------------------
+    # =====================================================
+    # AI / ML LIBRARY IMPORTS
+    # =====================================================
 
     for library, display_name in AI_LIBRARY_PATTERNS.items():
 
@@ -606,9 +903,9 @@ def scan_file(
                 ),
             )
 
-    # -----------------------------------------------------
-    # Strong AI / model API usage
-    # -----------------------------------------------------
+    # =====================================================
+    # STRONG AI / MODEL API USAGE
+    # =====================================================
 
     for pattern, description in STRONG_MODEL_USAGE_PATTERNS:
 
@@ -629,9 +926,78 @@ def scan_file(
                 ),
             )
 
-    # -----------------------------------------------------
-    # ML execution
-    # -----------------------------------------------------
+    # =====================================================
+    # LLM MODEL DETECTION
+    # =====================================================
+
+    for pattern, description in LLM_MODEL_PATTERNS:
+
+        if re.search(
+            pattern,
+            content,
+            re.IGNORECASE,
+        ):
+
+            add_evidence(
+                evidence,
+                "llm_detection",
+                description,
+                file_path,
+                find_match_line(
+                    content,
+                    pattern,
+                ),
+            )
+
+    # =====================================================
+    # LLM EXECUTION
+    # =====================================================
+
+    for pattern, description in LLM_EXECUTION_PATTERNS:
+
+        if re.search(
+            pattern,
+            content,
+            re.IGNORECASE,
+        ):
+
+            add_evidence(
+                evidence,
+                "llm_usage",
+                description,
+                file_path,
+                find_match_line(
+                    content,
+                    pattern,
+                ),
+            )
+
+    # =====================================================
+    # AI AGENT SIGNALS
+    # =====================================================
+
+    for pattern, description in AI_AGENT_PATTERNS:
+
+        if re.search(
+            pattern,
+            content,
+            re.IGNORECASE,
+        ):
+
+            add_evidence(
+                evidence,
+                "agent_signal",
+                description,
+                file_path,
+                find_match_line(
+                    content,
+                    pattern,
+                ),
+            )
+
+    # =====================================================
+    # ML EXECUTION
+    # =====================================================
 
     for pattern, description in ML_EXECUTION_PATTERNS:
 
@@ -652,9 +1018,9 @@ def scan_file(
                 ),
             )
 
-    # -----------------------------------------------------
-    # Library detected without recognized AI execution
-    # -----------------------------------------------------
+    # =====================================================
+    # LIBRARY WITHOUT RECOGNIZED EXECUTION
+    # =====================================================
 
     has_library_usage = any(
         item.type == "library_usage"
@@ -666,7 +1032,16 @@ def scan_file(
         for item in evidence
     )
 
-    if has_library_usage and not has_model_usage:
+    has_llm_usage = any(
+        item.type == "llm_usage"
+        for item in evidence
+    )
+
+    if (
+        has_library_usage
+        and not has_model_usage
+        and not has_llm_usage
+    ):
 
         library_evidence = next(
             (
@@ -681,9 +1056,9 @@ def scan_file(
             evidence,
             "usage_analysis",
             (
-                "AI/ML library detected, but no recognized "
-                "AI API or model execution was found in "
-                "this file."
+                "AI/ML library detected, but no "
+                "recognized AI API or model execution "
+                "was found in this file."
             ),
             file_path,
             (
@@ -696,10 +1071,6 @@ def scan_file(
     return evidence
 
 
-# =========================================================
-# SCAN MODEL ARTIFACT
-# =========================================================
-
 def scan_model_artifact(
     file_path: Path,
 ):
@@ -709,6 +1080,29 @@ def scan_model_artifact(
         not in MODEL_ARTIFACT_EXTENSIONS
     ):
         return []
+
+    # -----------------------------------------------------
+    # Ignore backup / test / copy / old model artifacts
+    # -----------------------------------------------------
+
+    model_name = file_path.stem.lower()
+
+    ignored_keywords = {
+        "backup",
+        "test",
+        "copy",
+        "old",
+    }
+
+    if any(
+        keyword in model_name
+        for keyword in ignored_keywords
+    ):
+        return []
+
+    # -----------------------------------------------------
+    # Valid model artifact
+    # -----------------------------------------------------
 
     return [
         Evidence(
@@ -721,7 +1115,6 @@ def scan_model_artifact(
             line_number=None,
         )
     ]
-
 
 # =========================================================
 # DETERMINE CONFIDENCE
@@ -741,9 +1134,9 @@ def determine_confidence(
         for item in evidence
     ]
 
-    # -----------------------------------------------------
-    # Strong API / model execution
-    # -----------------------------------------------------
+    # =====================================================
+    # STRONG API / MODEL EXECUTION
+    # =====================================================
 
     has_strong_api = any(
         (
@@ -752,13 +1145,44 @@ def determine_confidence(
             or "embeddings invocation" in value
             or "responses api" in value
             or "messages api" in value
+            or "llm invocation" in value
+            or "llm generation" in value
         )
         for value in evidence_values
     )
 
-    # -----------------------------------------------------
-    # Model loading + prediction
-    # -----------------------------------------------------
+    # =====================================================
+    # LLM / AGENT EXECUTION
+    # =====================================================
+
+    has_llm_usage = (
+        "llm_usage"
+        in evidence_types
+    )
+
+    has_agent_signal = (
+        "agent_signal"
+        in evidence_types
+    )
+
+    if (
+        has_llm_usage
+        and has_agent_signal
+    ):
+
+        return "High"
+
+    if has_llm_usage:
+
+        return "High"
+
+    if has_strong_api:
+
+        return "High"
+
+    # =====================================================
+    # MODEL LOADING + PREDICTION
+    # =====================================================
 
     has_model_load = any(
         (
@@ -777,44 +1201,57 @@ def determine_confidence(
     )
 
     if (
-        has_strong_api
-        or (
-            has_model_load
-            and has_prediction
-        )
+        has_model_load
+        and has_prediction
     ):
+
         return "High"
 
-    # -----------------------------------------------------
-    # Library + genuine ML execution
-    # -----------------------------------------------------
+    # =====================================================
+    # LIBRARY + GENUINE ML EXECUTION
+    # =====================================================
 
     if (
         "library_usage" in evidence_types
         and "model_usage" in evidence_types
     ):
+
         return "High"
 
-    # -----------------------------------------------------
-    # Model execution only
-    # -----------------------------------------------------
+    # =====================================================
+    # MODEL EXECUTION ONLY
+    # =====================================================
 
     if "model_usage" in evidence_types:
+
         return "Medium"
 
-    # -----------------------------------------------------
-    # Model artifact
-    # -----------------------------------------------------
+    # =====================================================
+    # MODEL ARTIFACT
+    # =====================================================
 
     if "model_artifact" in evidence_types:
+
         return "Medium"
 
-    # -----------------------------------------------------
-    # Library only
-    # -----------------------------------------------------
+    # =====================================================
+    # LIBRARY ONLY
+    # =====================================================
 
-    if "library_usage" in evidence_types:
+    if (
+        "library_usage" in evidence_types
+        or "dependency_usage" in evidence_types
+    ):
+
         return "Low"
+
+    # =====================================================
+    # LLM MODEL REFERENCE ONLY
+    # =====================================================
+
+    if "llm_detection" in evidence_types:
+
+        return "Medium"
 
     return "Low"
 
@@ -841,6 +1278,7 @@ def determine_asset_type(
     has_library = (
         "library_usage"
         in evidence_types
+        or "dependency_usage" in evidence_types
     )
 
     has_execution = (
@@ -853,9 +1291,40 @@ def determine_asset_type(
         in evidence_types
     )
 
-    # -----------------------------------------------------
-    # Strong AI API execution
-    # -----------------------------------------------------
+    has_llm = (
+        "llm_detection"
+        in evidence_types
+        or "llm_usage"
+        in evidence_types
+    )
+
+    has_agent_signal = (
+        "agent_signal"
+        in evidence_types
+    )
+
+    # =====================================================
+    # AI AGENT
+    # =====================================================
+
+    if (
+        has_llm
+        and has_agent_signal
+    ):
+
+        return "AI Agent"
+
+    # =====================================================
+    # LLM APPLICATION
+    # =====================================================
+
+    if has_llm:
+
+        return "AI Application"
+
+    # =====================================================
+    # STRONG AI API EXECUTION
+    # =====================================================
 
     has_ai_api_call = any(
         (
@@ -870,27 +1339,31 @@ def determine_asset_type(
     )
 
     if has_ai_api_call:
+
         return "AI Application"
 
-    # -----------------------------------------------------
-    # Genuine model execution
-    # -----------------------------------------------------
+    # =====================================================
+    # GENUINE MODEL EXECUTION
+    # =====================================================
 
     if has_execution:
+
         return "AI Application"
 
-    # -----------------------------------------------------
-    # Model artifact
-    # -----------------------------------------------------
+    # =====================================================
+    # MODEL ARTIFACT
+    # =====================================================
 
     if has_artifact:
+
         return "AI Model Artifact"
 
-    # -----------------------------------------------------
-    # Library only
-    # -----------------------------------------------------
+    # =====================================================
+    # LIBRARY ONLY
+    # =====================================================
 
     if has_library:
+
         return "Potential AI Reference"
 
     return "AI Asset"
@@ -905,16 +1378,167 @@ def determine_status(
     asset_type,
 ):
 
-    if asset_type == "Potential AI Reference":
+    if (
+        asset_type
+        == "Potential AI Reference"
+    ):
+
         return "Needs Review"
 
     if confidence in {
         "High",
         "Medium",
     }:
+
         return "Discovered / Pending Review"
 
     return "Needs Review"
+
+
+
+# =========================================================
+# DETECT AI DEPENDENCIES
+# =========================================================
+
+AI_DEPENDENCY_PATTERNS = {
+    "openai": "OpenAI",
+    "anthropic": "Anthropic",
+    "transformers": "Hugging Face Transformers",
+    "torch": "PyTorch",
+    "tensorflow": "TensorFlow",
+    "scikit-learn": "Scikit-learn",
+    "sklearn": "Scikit-learn",
+    "langchain": "LangChain",
+    "langchain-openai": "LangChain OpenAI",
+    "langchain-anthropic": "LangChain Anthropic",
+    "google-generativeai": "Google Generative AI",
+    "google-cloud-aiplatform": "Google Vertex AI",
+    "vertexai": "Google Vertex AI",
+    "azure-ai": "Azure AI",
+    "azure-ai-inference": "Azure AI Inference",
+}
+
+
+def detect_dependency_usage(
+    file_path: Path,
+    content: str,
+) -> list[Evidence]:
+
+    evidence = []
+
+    file_name = file_path.name.lower()
+
+    if file_name not in DEPENDENCY_FILES:
+        return evidence
+
+    for package_name, display_name in AI_DEPENDENCY_PATTERNS.items():
+
+        pattern = re.escape(package_name)
+
+        if not re.search(
+            pattern,
+            content,
+            re.IGNORECASE,
+        ):
+            continue
+
+        add_evidence(
+            evidence,
+            "dependency_usage",
+            (
+                f"{display_name} dependency detected "
+                f"in {file_path.name}"
+            ),
+            file_path,
+            find_match_line(
+                content,
+                pattern,
+            ),
+        )
+
+    # -----------------------------------------------------
+    # Azure OpenAI
+    # -----------------------------------------------------
+
+    azure_openai_pattern = (
+        r"\bazure[-_]openai\b"
+        r"|\bAzureOpenAI\b"
+    )
+
+    if re.search(
+        azure_openai_pattern,
+        content,
+        re.IGNORECASE,
+    ):
+
+        add_evidence(
+            evidence,
+            "dependency_usage",
+            (
+                "Azure OpenAI dependency or configuration "
+                f"detected in {file_path.name}"
+            ),
+            file_path,
+            find_match_line(
+                content,
+                azure_openai_pattern,
+            ),
+        )
+
+    # -----------------------------------------------------
+    # Google / Vertex AI
+    # -----------------------------------------------------
+
+    google_pattern = (
+        r"\bvertexai\b"
+        r"|\bgoogle-generativeai\b"
+        r"|\bgoogle\.cloud\b"
+        r"|\bgoogle-cloud-aiplatform\b"
+    )
+
+    if re.search(
+        google_pattern,
+        content,
+        re.IGNORECASE,
+    ):
+
+        add_evidence(
+            evidence,
+            "dependency_usage",
+            (
+                "Google / Vertex AI dependency or "
+                f"configuration detected in {file_path.name}"
+            ),
+            file_path,
+            find_match_line(
+                content,
+                google_pattern,
+            ),
+        )
+
+    # -----------------------------------------------------
+    # Remove duplicate dependency evidence
+    # -----------------------------------------------------
+
+    unique = []
+    seen = set()
+
+    for item in evidence:
+
+        key = (
+            item.type,
+            item.value,
+            item.file,
+            item.line_number,
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        unique.append(item)
+
+    return unique
 
 
 # =========================================================
@@ -930,38 +1554,42 @@ def discover_ai_assets(
     )
 
     if not root.exists():
+
         raise ValueError(
             "Repository path does not exist."
         )
 
     if not root.is_dir():
+
         raise ValueError(
             "Repository path must be a directory."
         )
 
     assets = []
 
-    # -----------------------------------------------------
-    # Walk repository
-    # -----------------------------------------------------
+    # =====================================================
+    # WALK REPOSITORY
+    # =====================================================
 
     for file_path in root.rglob("*"):
 
         if not file_path.is_file():
+
             continue
 
-        # -------------------------------------------------
-        # Ignore unwanted directories
-        # -------------------------------------------------
+        # =================================================
+        # IGNORE UNWANTED DIRECTORIES
+        # =================================================
 
         if any(
             ignored in file_path.parts
             for ignored in IGNORED_DIRECTORIES
         ):
+
             continue
 
         evidence = []
-
+         
         # -------------------------------------------------
         # Source code
         # -------------------------------------------------
@@ -974,6 +1602,34 @@ def discover_ai_assets(
             evidence.extend(
                 scan_file(
                     file_path
+                )
+            )
+
+        # -------------------------------------------------
+        # Dependency / configuration files
+        # -------------------------------------------------
+
+        elif (
+            file_path.name.lower()
+            in DEPENDENCY_FILES
+        ):
+
+            dependency_content = read_text_file(
+                file_path
+            )
+
+            dependency_content = normalize_content(
+                dependency_content
+            )
+
+            dependency_content = remove_comments(
+                dependency_content
+            )
+
+            evidence.extend(
+                detect_dependency_usage(
+                    file_path,
+                    dependency_content,
                 )
             )
 
@@ -992,24 +1648,25 @@ def discover_ai_assets(
                 )
             )
 
-        # -------------------------------------------------
-        # No evidence
-        # -------------------------------------------------
+        # =================================================
+        # NO EVIDENCE
+        # =================================================
 
         if not evidence:
+
             continue
 
-        # -------------------------------------------------
-        # Confidence
-        # -------------------------------------------------
+        # =================================================
+        # CONFIDENCE
+        # =================================================
 
         confidence = determine_confidence(
             evidence
         )
 
-        # -------------------------------------------------
-        # Read content for metadata detection
-        # -------------------------------------------------
+        # =================================================
+        # READ CONTENT FOR METADATA
+        # =================================================
 
         content = read_text_file(
             file_path
@@ -1023,9 +1680,9 @@ def discover_ai_assets(
             content
         )
 
-        # -------------------------------------------------
-        # Enterprise fields
-        # -------------------------------------------------
+        # =================================================
+        # ENTERPRISE FIELDS
+        # =================================================
 
         model = detect_model(
             content,
@@ -1059,9 +1716,9 @@ def discover_ai_assets(
             asset_type,
         )
 
-        # -------------------------------------------------
-        # Create AI asset
-        # -------------------------------------------------
+        # =================================================
+        # CREATE AI ASSET
+        # =================================================
 
         asset = AIAsset(
 
@@ -1082,6 +1739,8 @@ def discover_ai_assets(
             application=application,
 
             purpose=purpose,
+
+            tools=[],
 
             discovery_source=(
                 "Local Repository"
@@ -1105,3 +1764,746 @@ def discover_ai_assets(
         assets.append(asset)
 
     return assets
+
+
+# =========================================================
+# NORMALIZE EVIDENCE PATH
+# =========================================================
+
+def normalize_evidence_path(
+    file_path: str,
+    repository_root: str | Path | None = None,
+) -> str:
+
+    if not file_path:
+
+        return "Unknown file"
+
+    if repository_root:
+
+        try:
+
+            root = Path(
+                repository_root
+            ).resolve()
+
+            path = Path(
+                file_path
+            ).resolve()
+
+            relative_path = path.relative_to(
+                root
+            )
+
+            # Always return a clean UI path
+            return relative_path.as_posix()
+
+        except (
+            ValueError,
+            OSError,
+        ):
+
+            pass
+
+    # Fallback
+    return Path(
+        file_path
+    ).name
+
+# =========================================================
+# AGGREGATE PROVIDERS
+# =========================================================
+
+def aggregate_providers(
+    findings: list[AIAsset],
+) -> str:
+
+    providers = []
+
+    for finding in findings:
+
+        provider = (
+            finding.provider
+            if finding.provider
+            else ""
+        ).strip()
+
+        if not provider:
+            continue
+
+        if provider == "Not detected":
+            continue
+
+        for item in provider.split(","):
+
+            item = item.strip()
+
+            if item and item not in providers:
+                providers.append(item)
+
+    # -----------------------------------------------------
+    # Local model evidence
+    # -----------------------------------------------------
+
+    has_local_model = any(
+        item.type == "model_artifact"
+        for finding in findings
+        for item in finding.evidence
+    )
+
+    if has_local_model:
+        if "Internal / Local ML" not in providers:
+            providers.append("Internal / Local ML")
+
+    if not providers:
+        return "Not detected"
+
+    return " / ".join(providers)
+
+
+# =========================================================
+# AGGREGATE LOCATIONS
+# =========================================================
+
+def aggregate_locations(
+    findings: list[AIAsset],
+) -> str:
+
+    locations = []
+
+    # -----------------------------------------------------
+    # Detect locations from individual findings
+    # -----------------------------------------------------
+
+    for finding in findings:
+
+        location = (
+            finding.location
+            if finding.location
+            else ""
+        ).strip()
+
+        if not location:
+            continue
+
+        if location == "Not detected":
+            continue
+
+        if location not in locations:
+            locations.append(location)
+
+    # -----------------------------------------------------
+    # Cloud provider detection
+    # -----------------------------------------------------
+
+    cloud_providers = {
+        "OpenAI",
+        "Azure OpenAI",
+        "Anthropic",
+        "Google Vertex AI",
+    }
+
+    has_cloud_provider = any(
+        provider in cloud_providers
+        for finding in findings
+        for provider in (
+            finding.provider.split(",")
+            if finding.provider
+            else []
+        )
+    )
+
+    if has_cloud_provider:
+        if "Cloud" not in locations:
+            locations.insert(0, "Cloud")
+
+    # -----------------------------------------------------
+    # Local model artifact detection
+    # -----------------------------------------------------
+
+    has_local_model = any(
+        item.type == "model_artifact"
+        for finding in findings
+        for item in finding.evidence
+    )
+
+    if has_local_model:
+        if "Local Environment" not in locations:
+            locations.append(
+                "Local Environment"
+            )
+
+    if not locations:
+        return "Not detected"
+
+    return " / ".join(locations)
+# =========================================================
+# AGGREGATED PROVIDER
+# =========================================================
+
+def determine_aggregated_provider(
+    findings: list[AIAsset],
+) -> str:
+
+    providers = []
+
+    for finding in findings:
+
+        provider = (
+            finding.provider or ""
+        ).strip()
+
+        if not provider:
+            continue
+
+        if provider == "Not detected":
+            continue
+
+        for item in provider.split(","):
+
+            item = item.strip()
+
+            if item and item not in providers:
+                providers.append(item)
+
+    # -----------------------------------------------------
+    # Detect local ML from model artifacts / local models
+    # -----------------------------------------------------
+
+    has_local_model = False
+
+    for finding in findings:
+
+        if finding.model != "Not detected":
+            has_local_model = True
+
+        if any(
+            evidence.type == "model_artifact"
+            for evidence in finding.evidence
+        ):
+            has_local_model = True
+
+    if has_local_model:
+        if "Internal / Local ML" not in providers:
+            providers.append("Internal / Local ML")
+
+    # -----------------------------------------------------
+    # Clean provider naming
+    # -----------------------------------------------------
+
+    if not providers:
+        return "Not detected"
+
+    return " / ".join(providers)
+
+
+# =========================================================
+# AGGREGATED LOCATION
+# =========================================================
+
+def determine_aggregated_location(
+    findings: list[AIAsset],
+) -> str:
+
+    locations = []
+
+    for finding in findings:
+
+        location = (
+            finding.location or ""
+        ).strip()
+
+        if not location:
+            continue
+
+        if location == "Not detected":
+            continue
+
+        for item in location.split("/"):
+
+            item = item.strip()
+
+            if item and item not in locations:
+                locations.append(item)
+
+    # -----------------------------------------------------
+    # Local model evidence
+    # -----------------------------------------------------
+
+    has_local_model = False
+
+    for finding in findings:
+
+        if any(
+            evidence.type == "model_artifact"
+            for evidence in finding.evidence
+        ):
+            has_local_model = True
+
+        if (
+            finding.model
+            and finding.model != "Not detected"
+        ):
+            has_local_model = True
+
+    if has_local_model:
+
+        if "Local Environment" not in locations:
+            locations.append(
+                "Local Environment"
+            )
+
+    # -----------------------------------------------------
+    # Normalize cloud location
+    # -----------------------------------------------------
+
+    if "Cloud" in locations:
+        locations = [
+            item
+            for item in locations
+            if item != "Cloud"
+        ]
+
+        locations.insert(0, "Cloud")
+
+    if not locations:
+        return "Not detected"
+
+    return " / ".join(locations)    
+# =========================================================
+# AGGREGATE APPLICATION ASSETS
+# =========================================================
+
+def aggregate_application_assets(
+    assets: list[AIAsset],
+    repository_root: str | Path | None = None,
+) -> list[AIAsset]:
+
+    applications = {}
+
+    # =====================================================
+    # APPLICATION METADATA
+    # =====================================================
+
+    metadata = {
+
+        "ai-assist": {
+
+            "name": "AI Assist",
+
+            "purpose": (
+                "Provide AI-powered employee assistance"
+            ),
+
+            "tools": [
+                "Employee Support",
+                "Internal ML Models",
+            ],
+        },
+
+        "enterprise-knowledge": {
+
+            "name": "Enterprise Knowledge",
+
+            "purpose": (
+                "Search and analyze enterprise knowledge"
+            ),
+
+            "tools": [
+                "Knowledge Search",
+                "Internal ML Models",
+            ],
+        },
+
+        "incident-intelligence": {
+
+            "name": "Incident Intelligence",
+
+            "purpose": (
+                "Investigate and classify incidents"
+            ),
+
+            "tools": [
+                "Incident Analysis",
+                "Internal ML Models",
+            ],
+        },
+    }
+
+    # =====================================================
+    # IDENTIFY APPLICATION
+    # =====================================================
+
+    for asset in assets:
+
+        paths = [
+            item.file.lower()
+            for item in asset.evidence
+            if item.file
+        ]
+
+        application_key = "other"
+
+        for file_path in paths:
+
+            if (
+                "\\ai-assist\\" in file_path
+                or "/ai-assist/" in file_path
+            ):
+
+                application_key = "ai-assist"
+
+                break
+
+            if (
+                "\\enterprise-knowledge\\" in file_path
+                or "/enterprise-knowledge/" in file_path
+            ):
+
+                application_key = (
+                    "enterprise-knowledge"
+                )
+
+                break
+
+            if (
+                "\\incident-intelligence\\" in file_path
+                or "/incident-intelligence/" in file_path
+            ):
+
+                application_key = (
+                    "incident-intelligence"
+                )
+
+                break
+
+        if application_key == "other":
+
+            continue
+
+        if application_key not in applications:
+
+            applications[
+                application_key
+            ] = []
+
+        applications[
+            application_key
+        ].append(asset)
+
+    # =====================================================
+    # BUILD AGGREGATED ASSETS
+    # =====================================================
+
+    aggregated = []
+
+    application_order = [
+        "incident-intelligence",
+        "enterprise-knowledge",
+        "ai-assist",
+    ]
+
+    for application_key in application_order:
+
+        if (
+            application_key
+            not in applications
+        ):
+
+            continue
+
+        findings = applications[
+            application_key
+        ]
+
+        info = metadata[
+            application_key
+        ]
+
+        # =================================================
+        # COLLECT REAL MODEL ARTIFACTS
+        # =================================================
+
+        models = []
+
+        for finding in findings:
+
+            for item in finding.evidence:
+
+                if (
+                    item.type
+                    != "model_artifact"
+                ):
+
+                    continue
+
+                match = re.search(
+                    r"Trained model artifact detected:\s*(.+)$",
+                    item.value,
+                    re.IGNORECASE,
+                )
+
+                if not match:
+
+                    continue
+
+                artifact_name = (
+                    match.group(1).strip()
+                )
+
+                model_name = Path(
+                    artifact_name
+                ).stem
+
+                model_lower = (
+                    model_name.lower()
+                )
+
+                # -----------------------------------------
+                # Ignore backup/test/copy/old artifacts
+                # -----------------------------------------
+
+                if any(
+                    keyword in model_lower
+                    for keyword in [
+                        "backup",
+                        "test",
+                        "copy",
+                        "old",
+                    ]
+                ):
+
+                    continue
+
+                if (
+                    model_name
+                    not in models
+                ):
+
+                    models.append(
+                        model_name
+                    )
+
+        # =================================================
+        # COLLECT LLM MODELS
+        # =================================================
+
+        for finding in findings:
+
+            if (
+                finding.model
+                and finding.model
+                != "Not detected"
+                and finding.model
+                not in models
+                and (
+                    finding.asset_type
+                    in {
+                        "AI Agent",
+                        "AI Application",
+                    }
+                )
+            ):
+
+                # Do not replace local artifact
+                # models with generic local model names.
+                if finding.model != "Local ML Model":
+
+                    models.append(
+                        finding.model
+                    )
+
+        # =================================================
+        # COLLECT MEANINGFUL EVIDENCE
+        # =================================================
+
+        evidence = []
+
+        for finding in findings:
+
+            # ---------------------------------------------
+            # Include supporting evidence from all findings.
+            #
+            # Potential AI Reference findings are excluded
+            # from confidence/type calculation below, but
+            # their dependency evidence is still useful to
+            # the aggregated application record.
+            # ---------------------------------------------
+
+            for item in finding.evidence:
+
+                evidence_file = (
+                    item.file.lower()
+                    if item.file
+                    else ""
+                )
+
+                # -----------------------------------------
+                # Ignore known false-positive files
+                # -----------------------------------------
+
+                test_file_names = {
+                    "false_positive_test.py",
+                    "model_reference_only.py",
+                    "unused_ai_import.py",
+                }
+
+                if any(
+                    evidence_file.endswith(
+                        "\\" + name
+                    )
+                    or evidence_file.endswith(
+                        "/" + name
+                    )
+                    for name in test_file_names
+                ):
+
+                    continue
+
+                # -----------------------------------------
+                # Normalize evidence path
+                # -----------------------------------------
+
+                clean_file = (
+                    normalize_evidence_path(
+                        item.file,
+                        repository_root,
+                    )
+                )
+
+                evidence.append(
+                    Evidence(
+                        type=item.type,
+                        value=item.value,
+                        file=clean_file,
+                        line_number=item.line_number,
+                    )
+                )
+
+        # =================================================
+        # MEANINGFUL FINDINGS
+        # =================================================
+
+        meaningful_findings = [
+            finding
+            for finding in findings
+            if finding.asset_type
+            != "Potential AI Reference"
+        ]
+
+        # =================================================
+        # CONFIDENCE
+        # =================================================
+
+        confidences = {
+            finding.confidence
+            for finding in meaningful_findings
+        }
+
+        if "High" in confidences:
+
+            confidence = "High"
+
+        elif "Medium" in confidences:
+
+            confidence = "Medium"
+
+        else:
+
+            confidence = "Low"
+
+        # =================================================
+        # ASSET TYPE
+        # =================================================
+
+        has_ai_agent = any(
+            finding.asset_type
+            == "AI Agent"
+            for finding in meaningful_findings
+        )
+
+        if has_ai_agent:
+
+            aggregated_asset_type = (
+                "AI Agent"
+            )
+
+        else:
+
+            aggregated_asset_type = (
+                "AI Application"
+            )
+
+        # =================================================
+        # MODEL DISPLAY
+        # =================================================
+
+        if models:
+
+            model_display = ", ".join(
+                models
+            )
+
+        else:
+
+            model_display = "Local ML Model"
+
+        # =================================================
+        # CREATE ENTERPRISE APPLICATION ASSET
+        # =================================================
+        provider = determine_aggregated_provider(
+        findings
+        )
+
+        location = determine_aggregated_location(
+        findings
+        )
+        aggregated.append(
+            AIAsset(
+
+                id=(
+                    f"AI-{len(aggregated) + 1:04d}"
+                ),
+
+                name=info["name"],
+
+                asset_type=(
+                    aggregated_asset_type
+                ),
+
+                model=model_display,
+
+                provider=provider,
+
+                location=location,
+
+                application=info["name"],
+
+                purpose=info["purpose"],
+
+                tools=info["tools"],
+
+                discovery_source=(
+                    "Local Repository"
+                ),
+
+                status=(
+                    "Discovered / Pending Review"
+                ),
+
+                category="AI/ML",
+
+                confidence=confidence,
+
+                evidence=evidence,
+
+                description=(
+                    f"{info['name']} contains AI/ML "
+                    "functionality discovered through "
+                    "source-code analysis and model "
+                    "artifacts."
+                ),
+            )
+        )
+
+    return aggregated

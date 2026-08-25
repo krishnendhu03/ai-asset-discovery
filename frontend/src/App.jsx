@@ -8,76 +8,107 @@ function App() {
   const [filter, setFilter] = useState("All");
 
   const [showScan, setShowScan] = useState(false);
+
   const [repositoryUrl, setRepositoryUrl] = useState("");
+  const [repositoryPath, setRepositoryPath] = useState(
+  );
+
+  const [scanMode, setScanMode] = useState("local");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [selectedAsset, setSelectedAsset] = useState(null);
 
-  // --------------------------------------------------
+  // =====================================================
   // START SCAN
-  // --------------------------------------------------
+  // =====================================================
 
   const startScan = async () => {
-  if (!repositoryUrl.trim()) {
-    setError("Please enter a GitHub repository URL.");
-    return;
-  }
-
-  setLoading(true);
-  setError("");
-
-  try {
-    const response = await fetch(`${API_URL}/discovery/scan`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        repository_url: repositoryUrl.trim(),
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-
-      throw new Error(
-        errorData?.detail || `Scan failed with status ${response.status}`
-      );
+    if (
+      scanMode === "local" &&
+      !repositoryPath.trim()
+    ) {
+      setError("Please enter the repository path.");
+      return;
     }
 
-    const data = await response.json();
+    if (
+      scanMode === "github" &&
+      !repositoryUrl.trim()
+    ) {
+      setError("Please enter a GitHub repository URL.");
+      return;
+    }
 
-    setAssets(data.assets || []);
-    setFilter("All");
-    setSelectedAsset(null);
-    setShowScan(false);
-    setRepositoryUrl("");
-  } catch (err) {
-    console.error(err);
+    setLoading(true);
+    setError("");
 
-    setError(
-      err.message ||
-        "Unable to connect to the scanner. Make sure the FastAPI backend is running."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const requestBody =
+        scanMode === "local"
+          ? {
+              repository_path: repositoryPath.trim(),
+            }
+          : {
+              repository_url: repositoryUrl.trim(),
+            };
 
-  // --------------------------------------------------
+      const response = await fetch(
+        `${API_URL}/discovery/scan`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData =
+          await response.json().catch(() => null);
+
+        throw new Error(
+          errorData?.detail ||
+            `Scan failed with status ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      setAssets(data.assets || []);
+      setFilter("All");
+      setSelectedAsset(null);
+      setShowScan(false);
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.message ||
+          "Unable to connect to the AI Asset Discovery backend."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =====================================================
   // FILTER
-  // --------------------------------------------------
+  // =====================================================
 
   const filteredAssets =
     filter === "All"
       ? assets
-      : assets.filter((asset) => asset.confidence === filter);
+      : assets.filter(
+          (asset) =>
+            asset.confidence === filter
+        );
 
-  // --------------------------------------------------
+  // =====================================================
   // COUNTS
-  // --------------------------------------------------
+  // =====================================================
 
   const highCount = assets.filter(
     (asset) => asset.confidence === "High"
@@ -91,24 +122,28 @@ function App() {
     (asset) => asset.confidence === "Low"
   ).length;
 
-  // --------------------------------------------------
-  // HELPER
-  // --------------------------------------------------
+  // =====================================================
+  // STATUS CLASS
+  // =====================================================
 
   const getStatusClass = (status) => {
-  if (!status) return "review";
+    if (!status) return "review";
 
-  const normalized = status.toLowerCase();
+    const normalized =
+      status.toLowerCase();
 
-  if (normalized === "discovered") {
-    return "discovered";
-  }
+    if (
+      normalized.includes("discovered")
+    ) {
+      return "discovered";
+    }
 
-  return "review";
-};
-  // --------------------------------------------------
+    return "review";
+  };
+
+  // =====================================================
   // RENDER
-  // --------------------------------------------------
+  // =====================================================
 
   return (
     <div className="app">
@@ -116,6 +151,7 @@ function App() {
       {/* HEADER */}
 
       <header className="topbar">
+
         <div>
           <h1>AI Asset Discovery</h1>
 
@@ -128,6 +164,7 @@ function App() {
           <span className="status-dot"></span>
           Scanner Online
         </div>
+
       </header>
 
       <main className="container">
@@ -187,23 +224,86 @@ function App() {
           {/* SCAN PANEL */}
 
           {showScan && (
+
             <div className="scan-panel">
 
-              <h3>Start New Repository Scan</h3>
+              <h3>
+                Start New Repository Scan
+              </h3>
 
               <p>
-                 Enter a GitHub repository URL to discover AI assets
-                 and supporting evidence.
-                 </p>
+                Scan a local enterprise environment
+                or a GitHub repository to discover
+                AI assets.
+              </p>
 
-              <input
-                 type="url"
-                 placeholder="https://github.com/owner/repository"
-                 value={repositoryUrl}
-                 onChange={(event) =>
-                 setRepositoryUrl(event.target.value)
-                }
+              {/* MODE */}
+
+              <div className="scan-mode">
+
+                <button
+                  className={
+                    scanMode === "local"
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() => {
+                    setScanMode("local");
+                    setError("");
+                  }}
+                >
+                  Local Repository
+                </button>
+
+                <button
+                  className={
+                    scanMode === "github"
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() => {
+                    setScanMode("github");
+                    setError("");
+                  }}
+                >
+                  GitHub Repository
+                </button>
+
+              </div>
+
+              {/* LOCAL */}
+
+              {scanMode === "local" && (
+
+                <input
+                  type="text"
+                  placeholder="C:/path/to/repository"
+                  value={repositoryPath}
+                  onChange={(event) =>
+                    setRepositoryPath(
+                      event.target.value
+                    )
+                  }
                 />
+
+              )}
+
+              {/* GITHUB */}
+
+              {scanMode === "github" && (
+
+                <input
+                  type="url"
+                  placeholder="https://github.com/owner/repository"
+                  value={repositoryUrl}
+                  onChange={(event) =>
+                    setRepositoryUrl(
+                      event.target.value
+                    )
+                  }
+                />
+
+              )}
 
               {error && (
                 <div className="error-message">
@@ -228,26 +328,42 @@ function App() {
                   onClick={startScan}
                   disabled={loading}
                 >
-                  {loading ? "Scanning..." : "Start Scan"}
+                  {loading
+                    ? "Scanning..."
+                    : "Start Scan"}
                 </button>
 
               </div>
 
             </div>
+
           )}
 
           {/* FILTERS */}
 
           <div className="filters">
 
-            {["All", "High", "Medium", "Low"].map((item) => (
+            {[
+              "All",
+              "High",
+              "Medium",
+              "Low",
+            ].map((item) => (
+
               <button
                 key={item}
-                className={filter === item ? "active" : ""}
-                onClick={() => setFilter(item)}
+                className={
+                  filter === item
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setFilter(item)
+                }
               >
                 {item}
               </button>
+
             ))}
 
           </div>
@@ -259,6 +375,7 @@ function App() {
             <table>
 
               <thead>
+
                 <tr>
                   <th>Asset</th>
                   <th>Type</th>
@@ -267,6 +384,7 @@ function App() {
                   <th>Confidence</th>
                   <th>Status</th>
                 </tr>
+
               </thead>
 
               <tbody>
@@ -274,86 +392,98 @@ function App() {
                 {filteredAssets.length === 0 ? (
 
                   <tr>
+
                     <td
                       colSpan="6"
                       className="empty-state"
                     >
                       No AI assets discovered yet.
-                      Click <strong>New Scan</strong> to start.
+                      Click{" "}
+                      <strong>
+                        New Scan
+                      </strong>{" "}
+                      to start.
                     </td>
+
                   </tr>
 
                 ) : (
 
-                  filteredAssets.map((asset) => (
+                  filteredAssets.map(
+                    (asset) => (
 
-                    <tr
-                      key={asset.id}
-                      className="asset-row"
-                      onClick={() => setSelectedAsset(asset)}
-                    >
+                      <tr
+                        key={asset.id}
+                        className="asset-row"
+                        onClick={() =>
+                          setSelectedAsset(
+                            asset
+                          )
+                        }
+                      >
 
-                      {/* ASSET */}
+                        <td>
 
-                      <td>
-                        <div className="asset-name">
+                          <div className="asset-name">
 
-                          <strong>
-                            {asset.name}
-                          </strong>
+                            <strong>
+                              {asset.name}
+                            </strong>
 
-                          <small>
-                            {asset.id}
-                          </small>
+                            <small>
+                              {asset.id}
+                            </small>
 
-                        </div>
-                      </td>
+                          </div>
 
-                      {/* TYPE */}
+                        </td>
 
-                      <td>
-                        {asset.asset_type || "Not detected"}
-                      </td>
+                        <td>
+                          {asset.asset_type ||
+                            "Not detected"}
+                        </td>
 
-                      {/* MODEL */}
+                        <td>
+                          {asset.model ||
+                            "Not detected"}
+                        </td>
 
-                      <td>
-                        {asset.model || "Not detected"}
-                      </td>
+                        <td>
+                          {asset.provider ||
+                            "Not detected"}
+                        </td>
 
-                      {/* PROVIDER */}
+                        <td>
 
-                      <td>
-                        {asset.provider || "Not detected"}
-                      </td>
+                          <span
+                            className={`badge ${(
+                              asset.confidence ||
+                              "Low"
+                            ).toLowerCase()}`}
+                          >
+                            {asset.confidence ||
+                              "Low"}
+                          </span>
 
-                      {/* CONFIDENCE */}
+                        </td>
 
-                      <td>
-                        <span
-                          className={`badge ${(
-                            asset.confidence || "Low"
-                          ).toLowerCase()}`}
-                        >
-                          {asset.confidence || "Low"}
-                        </span>
-                      </td>
+                        <td>
 
-                      {/* STATUS */}
+                          <span
+                            className={`status-badge ${getStatusClass(
+                              asset.status
+                            )}`}
+                          >
+                            {asset.status ||
+                              "Needs Review"}
+                          </span>
 
-                      <td>
-                        <span
-                          className={`status-badge ${getStatusClass(
-                            asset.status
-                          )}`}
-                        >
-                          {asset.status || "Needs Review"}
-                        </span>
-                      </td>
+                        </td>
 
-                    </tr>
+                      </tr>
 
-                  ))
+                    )
+                  )
 
                 )}
 
@@ -367,20 +497,22 @@ function App() {
 
       </main>
 
-      {/* =================================================
-          ASSET DETAILS PANEL
-      ================================================= */}
+      {/* DETAILS */}
 
       {selectedAsset && (
 
         <div
           className="details-overlay"
-          onClick={() => setSelectedAsset(null)}
+          onClick={() =>
+            setSelectedAsset(null)
+          }
         >
 
           <div
             className="details-panel"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
 
             {/* HEADER */}
@@ -405,7 +537,9 @@ function App() {
 
               <button
                 className="close-button"
-                onClick={() => setSelectedAsset(null)}
+                onClick={() =>
+                  setSelectedAsset(null)
+                }
               >
                 ×
               </button>
@@ -417,20 +551,25 @@ function App() {
             <div className="details-confidence">
 
               <div>
+
                 <span className="details-meta-label">
                   Confidence
                 </span>
 
                 <span
                   className={`badge ${(
-                    selectedAsset.confidence || "Low"
+                    selectedAsset.confidence ||
+                    "Low"
                   ).toLowerCase()}`}
                 >
-                  {selectedAsset.confidence || "Low"}
+                  {selectedAsset.confidence ||
+                    "Low"}
                 </span>
+
               </div>
 
               <div>
+
                 <span className="details-meta-label">
                   Status
                 </span>
@@ -440,8 +579,10 @@ function App() {
                     selectedAsset.status
                   )}`}
                 >
-                  {selectedAsset.status || "Needs Review"}
+                  {selectedAsset.status ||
+                    "Needs Review"}
                 </span>
+
               </div>
 
             </div>
@@ -450,13 +591,14 @@ function App() {
 
             <div className="details-section">
 
-              <h3>Asset Information</h3>
+              <h3>
+                Asset Information
+              </h3>
 
               <div className="details-grid">
 
                 <div>
                   <span>Type</span>
-
                   <strong>
                     {selectedAsset.asset_type ||
                       "Not detected"}
@@ -465,7 +607,6 @@ function App() {
 
                 <div>
                   <span>Model</span>
-
                   <strong>
                     {selectedAsset.model ||
                       "Not detected"}
@@ -474,7 +615,6 @@ function App() {
 
                 <div>
                   <span>Provider</span>
-
                   <strong>
                     {selectedAsset.provider ||
                       "Not detected"}
@@ -483,7 +623,6 @@ function App() {
 
                 <div>
                   <span>Location</span>
-
                   <strong>
                     {selectedAsset.location ||
                       "Not detected"}
@@ -492,7 +631,6 @@ function App() {
 
                 <div>
                   <span>Application</span>
-
                   <strong>
                     {selectedAsset.application ||
                       "Not detected"}
@@ -501,7 +639,6 @@ function App() {
 
                 <div>
                   <span>Purpose</span>
-
                   <strong>
                     {selectedAsset.purpose ||
                       "Not detected"}
@@ -510,16 +647,20 @@ function App() {
 
                 <div>
                   <span>Discovery Source</span>
-
                   <strong>
-                    {selectedAsset.discovery_source ||
-                      "Local Repository"}
+                    {Array.isArray(
+                      selectedAsset.discovery_source
+                    )
+                      ? selectedAsset.discovery_source.join(
+                          ", "
+                        )
+                      : selectedAsset.discovery_source ||
+                        "Local Repository"}
                   </strong>
                 </div>
 
                 <div>
                   <span>Category</span>
-
                   <strong>
                     {selectedAsset.category ||
                       "AI/ML"}
@@ -530,11 +671,42 @@ function App() {
 
             </div>
 
-            {/* SUPPORTING EVIDENCE */}
+            {/* TOOLS */}
+
+            {selectedAsset.tools?.length > 0 && (
+
+              <div className="details-section">
+
+                <h3>Tools</h3>
+
+                <div className="tool-list">
+
+                  {selectedAsset.tools.map(
+                    (tool, index) => (
+
+                      <span
+                        className="tool-item"
+                        key={index}
+                      >
+                        {tool}
+                      </span>
+
+                    )
+                  )}
+
+                </div>
+
+              </div>
+
+            )}
+
+            {/* EVIDENCE */}
 
             <div className="details-section">
 
-              <h3>Supporting Evidence</h3>
+              <h3>
+                Supporting Evidence
+              </h3>
 
               <div className="details-evidence">
 
@@ -547,16 +719,27 @@ function App() {
                     >
 
                       <div className="evidence-type">
-                        {item.type || "Evidence"}
+                        {item.type ||
+                          "Evidence"}
                       </div>
 
                       <div className="evidence-value">
-                        {item.value || item}
+                        {item.value ||
+                          item}
                       </div>
 
                       <div className="evidence-file">
-                       {item.file?.replace(/^.*[\\/]repository[\\/]/i, "")}
-                     </div>
+                        {item.file || "Unknown file"}
+                      </div>
+
+                      {item.line_number && (
+
+                        <div className="evidence-line">
+                          Line{" "}
+                          {item.line_number}
+                        </div>
+
+                      )}
 
                     </div>
 
@@ -573,7 +756,9 @@ function App() {
 
               <div className="details-section">
 
-                <h3>Description</h3>
+                <h3>
+                  Description
+                </h3>
 
                 <p className="details-description">
                   {selectedAsset.description}

@@ -16,4 +16,4 @@ def process_document(document_text):
     # Store/process document embeddings for search
     document_search_index = embedding.data
 
-    return document_search_index
+return document_search_index

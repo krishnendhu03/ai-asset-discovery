@@ -1,0 +1,356 @@
+[
+  {
+    "issue": "payment service is failing",
+    "service": "payment",
+    "category": "payment",
+    "possible_cause": "The payment service may be experiencing an application or configuration problem.",
+    "troubleshooting_steps": [
+      "Check the payment service health.",
+      "Review recent deployments or configuration changes.",
+      "Review application and error logs.",
+      "Check payment API latency and error rates.",
+      "Determine whether multiple users are affected."
+    ],
+    "recommended_action": "Investigate the payment service and escalate to the responsible engineering team if the issue persists."
+  },
+  {
+    "issue": "payment API timeout",
+    "service": "payment",
+    "category": "payment",
+    "possible_cause": "The payment API may be experiencing elevated latency or dependency failures.",
+    "troubleshooting_steps": [
+      "Check payment API health.",
+      "Review API latency and timeout metrics.",
+      "Check dependent services.",
+      "Review recent deployments.",
+      "Inspect application logs."
+    ],
+    "recommended_action": "Investigate payment API latency and dependent services."
+  },
+  {
+    "issue": "customers cannot complete payment",
+    "service": "payment",
+    "category": "payment",
+    "possible_cause": "The payment workflow may be failing because of an API, configuration, or dependency problem.",
+    "troubleshooting_steps": [
+      "Check payment transaction error rates.",
+      "Review payment API logs.",
+      "Check dependent payment services.",
+      "Review recent configuration changes.",
+      "Determine whether all or selected users are affected."
+    ],
+    "recommended_action": "Investigate the payment transaction workflow and dependent services."
+  },
+  {
+    "issue": "card payment is failing",
+    "service": "payment",
+    "category": "payment",
+    "possible_cause": "The payment processing service or an external payment dependency may be experiencing failures.",
+    "troubleshooting_steps": [
+      "Check payment processor availability.",
+      "Review payment transaction logs.",
+      "Check API error rates.",
+      "Review recent deployments.",
+      "Check external payment dependencies."
+    ],
+    "recommended_action": "Investigate payment processing and external payment dependencies."
+  },
+  {
+    "issue": "payment transactions are timing out",
+    "service": "payment",
+    "category": "payment",
+    "possible_cause": "Elevated payment API latency or an unavailable dependency may be causing transaction timeouts.",
+    "troubleshooting_steps": [
+      "Check payment API latency.",
+      "Review timeout metrics.",
+      "Check dependent services.",
+      "Review application logs.",
+      "Check recent infrastructure changes."
+    ],
+    "recommended_action": "Investigate payment latency and dependency health."
+  },
+
+  {
+    "issue": "customer service is unavailable",
+    "service": "customer-service",
+    "category": "customer_service",
+    "possible_cause": "The customer service application may be unavailable or experiencing an outage.",
+    "troubleshooting_steps": [
+      "Check customer service health.",
+      "Review application logs.",
+      "Check recent deployments.",
+      "Verify dependent services.",
+      "Determine whether multiple users are affected."
+    ],
+    "recommended_action": "Investigate the customer service application and escalate if the outage continues."
+  },
+  {
+    "issue": "customer support application is down",
+    "service": "customer-service",
+    "category": "customer_service",
+    "possible_cause": "The customer service application may be experiencing an availability problem.",
+    "troubleshooting_steps": [
+      "Check application availability.",
+      "Review service logs.",
+      "Check recent deployments.",
+      "Verify dependent services.",
+      "Check whether the outage affects multiple users."
+    ],
+    "recommended_action": "Investigate customer service availability and recent changes."
+  },
+  {
+    "issue": "customers cannot access support",
+    "service": "customer-service",
+    "category": "customer_service",
+    "possible_cause": "The customer service application or one of its dependencies may be unavailable.",
+    "troubleshooting_steps": [
+      "Check customer service health.",
+      "Review application error logs.",
+      "Check dependent services.",
+      "Review recent configuration changes.",
+      "Determine the scope of the outage."
+    ],
+    "recommended_action": "Investigate the customer service application and its dependencies."
+  },
+  {
+    "issue": "customer service API is timing out",
+    "service": "customer-service",
+    "category": "customer_service",
+    "possible_cause": "The customer service API may be experiencing elevated latency or dependency failures.",
+    "troubleshooting_steps": [
+      "Check API latency.",
+      "Review timeout and error metrics.",
+      "Check dependent services.",
+      "Review application logs.",
+      "Review recent deployments."
+    ],
+    "recommended_action": "Investigate customer service API latency and dependencies."
+  },
+  {
+    "issue": "customer support requests are failing",
+    "service": "customer-service",
+    "category": "customer_service",
+    "possible_cause": "The customer service application may be experiencing an application or dependency problem.",
+    "troubleshooting_steps": [
+      "Check customer service health.",
+      "Review request error rates.",
+      "Inspect application logs.",
+      "Check dependent services.",
+      "Review recent deployments."
+    ],
+    "recommended_action": "Investigate customer service request failures and dependent services."
+  },
+
+  {
+    "issue": "application is running slowly",
+    "service": "general",
+    "category": "performance",
+    "possible_cause": "The application may be experiencing elevated latency or resource contention.",
+    "troubleshooting_steps": [
+      "Check application response times.",
+      "Review CPU and memory utilization.",
+      "Review recent deployments.",
+      "Check application and infrastructure logs.",
+      "Identify whether multiple users are affected."
+    ],
+    "recommended_action": "Investigate application performance metrics and recent infrastructure or application changes."
+  },
+  {
+    "issue": "API response time is very high",
+    "service": "general",
+    "category": "performance",
+    "possible_cause": "The application may be experiencing elevated latency or resource contention.",
+    "troubleshooting_steps": [
+      "Check API response times.",
+      "Review CPU and memory utilization.",
+      "Check application logs.",
+      "Review recent deployments.",
+      "Check infrastructure metrics."
+    ],
+    "recommended_action": "Investigate API latency and application resource utilization."
+  },
+  {
+    "issue": "application latency has increased",
+    "service": "general",
+    "category": "performance",
+    "possible_cause": "Increased application latency may be caused by resource contention, configuration changes, or dependency issues.",
+    "troubleshooting_steps": [
+      "Check application latency metrics.",
+      "Review CPU and memory utilization.",
+      "Check dependent services.",
+      "Review recent deployments.",
+      "Inspect application logs."
+    ],
+    "recommended_action": "Investigate application latency and recent system changes."
+  },
+  {
+    "issue": "website is responding very slowly",
+    "service": "general",
+    "category": "performance",
+    "possible_cause": "The application may be experiencing resource constraints or increased request latency.",
+    "troubleshooting_steps": [
+      "Check response time metrics.",
+      "Review server resource utilization.",
+      "Check application logs.",
+      "Review recent deployments.",
+      "Check infrastructure health."
+    ],
+    "recommended_action": "Investigate server performance and application latency."
+  },
+  {
+    "issue": "requests are taking too long to complete",
+    "service": "general",
+    "category": "performance",
+    "possible_cause": "The application may be experiencing elevated processing latency or dependency delays.",
+    "troubleshooting_steps": [
+      "Check request latency.",
+      "Review application logs.",
+      "Check dependent services.",
+      "Review resource utilization.",
+      "Review recent changes."
+    ],
+    "recommended_action": "Investigate request latency and dependent service performance."
+  },
+
+  {
+    "issue": "database connection timeout",
+    "service": "database",
+    "category": "database",
+    "possible_cause": "The application may be unable to establish a database connection.",
+    "troubleshooting_steps": [
+      "Check database availability.",
+      "Check database connection pool usage.",
+      "Review database error logs.",
+      "Check network connectivity.",
+      "Review recent configuration changes."
+    ],
+    "recommended_action": "Investigate database availability and connection pool health."
+  },
+  {
+    "issue": "database is unavailable",
+    "service": "database",
+    "category": "database",
+    "possible_cause": "The database may be unavailable or experiencing connectivity problems.",
+    "troubleshooting_steps": [
+      "Check database server health.",
+      "Review database logs.",
+      "Check network connectivity.",
+      "Check connection pool usage.",
+      "Review recent database changes."
+    ],
+    "recommended_action": "Investigate database availability and connectivity."
+  },
+  {
+    "issue": "application cannot connect to database",
+    "service": "database",
+    "category": "database",
+    "possible_cause": "The application may be experiencing database connectivity or authentication problems.",
+    "troubleshooting_steps": [
+      "Check database availability.",
+      "Verify database connection settings.",
+      "Review application logs.",
+      "Check connection pool usage.",
+      "Check network connectivity."
+    ],
+    "recommended_action": "Investigate database connectivity and connection configuration."
+  },
+  {
+    "issue": "database queries are failing",
+    "service": "database",
+    "category": "database",
+    "possible_cause": "Database queries may be failing because of connectivity, configuration, or database health problems.",
+    "troubleshooting_steps": [
+      "Review database error logs.",
+      "Check database availability.",
+      "Review failed query details.",
+      "Check connection pool health.",
+      "Review recent database changes."
+    ],
+    "recommended_action": "Investigate database health and failed query errors."
+  },
+  {
+    "issue": "database response time is high",
+    "service": "database",
+    "category": "database",
+    "possible_cause": "The database may be experiencing high load, inefficient queries, or resource contention.",
+    "troubleshooting_steps": [
+      "Check database performance metrics.",
+      "Review slow queries.",
+      "Check CPU and memory utilization.",
+      "Review database connection usage.",
+      "Check recent database changes."
+    ],
+    "recommended_action": "Investigate database performance and slow queries."
+  },
+
+  {
+    "issue": "login is not working",
+    "service": "authentication",
+    "category": "authentication",
+    "possible_cause": "The authentication service may be rejecting requests or experiencing an availability issue.",
+    "troubleshooting_steps": [
+      "Check authentication service health.",
+      "Review authentication logs.",
+      "Verify recent authentication configuration changes.",
+      "Check identity provider availability.",
+      "Determine whether multiple users are affected."
+    ],
+    "recommended_action": "Investigate authentication service health and identity provider connectivity."
+  },
+  {
+    "issue": "users cannot log in",
+    "service": "authentication",
+    "category": "authentication",
+    "possible_cause": "The authentication service or identity provider may be unavailable or rejecting login requests.",
+    "troubleshooting_steps": [
+      "Check authentication service health.",
+      "Review login error logs.",
+      "Check identity provider availability.",
+      "Review recent authentication changes.",
+      "Determine the scope of the issue."
+    ],
+    "recommended_action": "Investigate authentication service and identity provider availability."
+  },
+  {
+    "issue": "authentication requests are failing",
+    "service": "authentication",
+    "category": "authentication",
+    "possible_cause": "The authentication service may be experiencing request failures or configuration problems.",
+    "troubleshooting_steps": [
+      "Check authentication service health.",
+      "Review authentication error logs.",
+      "Verify authentication configuration.",
+      "Check identity provider connectivity.",
+      "Review recent deployments."
+    ],
+    "recommended_action": "Investigate authentication failures and configuration."
+  },
+  {
+    "issue": "identity provider is unavailable",
+    "service": "authentication",
+    "category": "authentication",
+    "possible_cause": "The identity provider may be unavailable, preventing authentication requests from completing.",
+    "troubleshooting_steps": [
+      "Check identity provider health.",
+      "Review authentication service logs.",
+      "Check network connectivity.",
+      "Review recent configuration changes.",
+      "Determine whether all users are affected."
+    ],
+    "recommended_action": "Investigate identity provider availability and authentication connectivity."
+  },
+  {
+    "issue": "users are receiving authentication errors",
+    "service": "authentication",
+    "category": "authentication",
+    "possible_cause": "The authentication service may be rejecting requests because of configuration, identity provider, or availability problems.",
+    "troubleshooting_steps": [
+      "Review authentication error logs.",
+      "Check authentication service health.",
+      "Verify identity provider availability.",
+      "Review recent configuration changes.",
+      "Determine whether multiple users are affected."
+    ],
+    "recommended_action": "Investigate authentication errors and identity provider connectivity."
+  }
+]

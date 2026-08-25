@@ -1,3 +1,351 @@
+Traceback (most recent call last):
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 77, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 726, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 81, in serve
+    await self._serve(sockets)
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 88, in _serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\config.py", line 494, in load
+    self.loaded_app = self.load_app()
+                      ~~~~~~~~~~~~~^^
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\config.py", line 428, in load_app
+    return import_from_string(self.app)
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\importer.py", line 19, in import_from_string
+    module = importlib.import_module(module_str)
+  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1395, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\main.py", line 3, in <module>
+    from app.routes.discovery import router as discovery_router
+  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\routes\discovery.py", line 10, in <module>
+    from app.services.discovery_engine import (
+    ...<2 lines>...
+    )
+  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\services\discovery_engine.py", line 619
+    return "Not detected"
+    ^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'return' outside function
+
+Yes — this is a Python indentation error, not a Uvicorn problem.
+
+The important part is:
+
+discovery_engine.py", line 619
+return "Not detected"
+SyntaxError: 'return' outside function
+
+This means the return "Not detected" around your detect_location() function is indented incorrectly.
+
+In the code you uploaded, I can see the problematic area around the end of detect_location():
+
+if locations:
+    return " / ".join(locations)
+
+return "Not detected"
+
+Your uploaded version has inconsistent indentation around that section.
+
+Fix it exactly
+
+Go to discovery_engine.py around line 617–619.
+
+Make the ending of detect_location() exactly:
+
+    # -----------------------------------------------------
+    # Remove duplicates
+    # -----------------------------------------------------
+
+    locations = list(
+        dict.fromkeys(locations)
+    )
+
+    if locations:
+        return " / ".join(locations)
+
+    return "Not detected"
+
+Notice that all three executable lines are indented 4 spaces inside def detect_location().
+
+Your current code has:
+
+     if locations:
+         return " / ".join(locations)
+
+     return "Not detected"
+
+Those extra/mismatched spaces are what Python is complaining about.
+
+Then do this
+Save discovery_engine.py.
+Stop the backend with:
+Ctrl + C
+Start it again with your usual command, e.g.:
+uvicorn app.main:app --reload
+Important
+
+Don't change anything else yet.
+
+If you get another SyntaxError, send me the new traceback. We'll fix them one at a time rather than changing working discovery logic unnecessarily.
+
+yes done
+
+Great. ✅
+
+The backend syntax error is fixed.
+
+Next, let's do the actual discovery test:
+
+Keep FastAPI running.
+Keep the React UI running.
+Open AI Asset Discovery.
+Click + New Scan.
+Select Local Repository.
+Enter:
+C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\sample-enterprise-environment
+Click Start Scan.
+
+We should now verify that the UI shows the 3 aggregated applications:
+
+Incident Intelligence
+Enterprise Knowledge
+AI Assist
+
+And specifically check:
+
+Model names
+Provider
+Location
+Purpose
+Tools
+Discovery Source
+Status
+Confidence
+Supporting Evidence paths
+
+Don't change any code yet. Run the scan and send me the resulting UI screenshot/output. Then we'll take the next step.
+
+Yes — I checked the screenshots. The backend changes are working correctly now. ✅
+
+What is correct
+Field	Result
+Type	✅ AI Application
+Model	✅ category_model, severity_model, team_model, GPT-4.x
+Provider	✅ OpenAI / Internal / Local ML
+Location	✅ Cloud / Local Environment
+Application	✅ Incident Intelligence
+Purpose	✅ Investigate and classify incidents
+Discovery Source	✅ Local Repository
+Category	✅ AI/ML
+Evidence path	✅ Clean relative path
+Evidence line	✅ Correct
+Absolute Windows path	✅ Removed from UI
+
+The evidence now shows:
+
+incident-intelligence/backend/real_ai_usage.py
+Line 1
+
+instead of:
+
+C:\Users\krish\OneDrive\Desktop\AI\...
+
+So the evidence-path problem is solved. 🎯
+
+One UI issue I can see
+
+Your Tools section currently displays:
+
+Incident AnalysisInternal ML Models
+
+There should be spacing/separation:
+
+Incident Analysis
+Internal ML Models
+
+This is not a discovery-engine problem. Your backend is correctly returning:
+
+tools = [
+    "Incident Analysis",
+    "Internal ML Models",
+]
+
+The React/CSS is simply rendering them too close together.
+
+Next step
+
+Let's fix the Tools UI, then we'll move to the next major feature rather than changing the discovery engine again.
+
+After that, I recommend we proceed in this order:
+
+✅ Discovery engine
+✅ False-positive handling
+✅ Evidence normalization
+✅ Application aggregation
+✅ Provider/location aggregation
+🔧 Tools UI formatting
+⏭️ GitHub repository scanning verification
+⏭️ More realistic AI detection patterns
+⏭️ Review workflow/status handling
+⏭️ Final evaluator/demo polish
+
+Your core AI Asset Discovery functionality is now in a good working state.
+
+yes we'll do that also and see there is no gap between git repo and local repo 
+
+Yes. 👍 There are two small UI fixes we should make now:
+
+Add a visible gap between Local Repository and GitHub Repository.
+Add spacing between the Tools items.
+1. Fix Local/GitHub buttons
+
+In your App.css, find the styles for .scan-mode and add:
+
+.scan-mode {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.scan-mode button {
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.scan-mode button + button {
+  margin-left: 0;
+}
+
+The important part is:
+
+gap: 6px;
+
+That will turn this:
+
+[Local Repository][GitHub Repository]
+
+into:
+
+[Local Repository]  [GitHub Repository]
+2. Fix the Tools spacing
+
+Your React code already has:
+
+<div className="tool-list">
+  {selectedAsset.tools.map(
+    (tool, index) => (
+      <span
+        className="tool-item"
+        key={index}
+      >
+        {tool}
+      </span>
+    )
+  )}
+</div>
+
+So don't change App.jsx.
+
+In App.css, make sure you have:
+
+.tool-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tool-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+This will change:
+
+Incident AnalysisInternal ML Models
+
+to something like:
+
+Incident Analysis   Internal ML Models
+Then
+
+Save App.css and refresh the browser.
+
+After that, don't modify the backend. The backend discovery results are currently looking correct.
+
+Send me the screenshot after these two UI fixes, and we'll move to the GitHub Repository scan test next.
+
+Pasted code.css
+File
+i couldn't change you change it and give the full code
+
+Yes. I took your existing CSS and added the fixes without removing your current styling.
+
+Changes made
+✅ Added proper gap between Local Repository and GitHub Repository
+✅ Added spacing between Tools
+✅ Added responsive behavior for smaller screens
+✅ Kept your existing 917-line CSS intact
+✅ The new rules are added at the end so they override conflicting older rules
+
+Download the full corrected CSS:
+
+Download App_corrected.css
+
+Replace your current CSS file with this one.
+
+The important result will be:
+
+[ Local Repository ]  [ GitHub Repository ]
+
+instead of:
+
+[ Local Repository ][ GitHub Repository ]
+
+And:
+
+Tools
+
+[Incident Analysis]   [Internal ML Models]
+
+instead of:
+
+Incident AnalysisInternal ML Models
+
+Your backend code does not need to be changed for this UI fix. 
+
+App_corrected.css
+Code
+
+App_corrected.css
 * {
   box-sizing: border-box;
 }
@@ -914,4 +1262,78 @@ td {
     grid-template-columns: 1fr;
   }
 
+}
+/* =========================================================
+   SCAN MODE BUTTONS
+   Adds a clear gap between Local Repository and GitHub Repository
+========================================================= */
+
+.scan-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.scan-mode button {
+  margin: 0;
+  border: 1px solid #d9deea;
+  background: #ffffff;
+  color: #475467;
+  padding: 8px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scan-mode button + button {
+  margin-left: 0;
+}
+
+.scan-mode button.active {
+  background: #172033;
+  color: #ffffff;
+  border-color: #172033;
+}
+
+/* =========================================================
+   TOOLS
+   Adds spacing between individual tools
+========================================================= */
+
+.tool-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  line-height: 1.5;
+}
+
+.tool-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   RESPONSIVE SCAN MODE
+========================================================= */
+
+@media (max-width: 600px) {
+  .scan-mode {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .scan-mode button {
+    flex: 1;
+  }
 }

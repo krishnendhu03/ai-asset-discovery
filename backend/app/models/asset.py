@@ -20,13 +20,18 @@ class AIAsset(BaseModel):
     location: str
     application: str
     purpose: str
+
+    # New enterprise fields
+    tools: List[str] = []
+
     discovery_source: str
     status: str
 
-    # Existing classification fields
+    # Classification
     category: str
     confidence: str
 
+    # Supporting evidence
     evidence: List[Evidence]
 
     description: str
