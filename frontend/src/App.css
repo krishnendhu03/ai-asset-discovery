@@ -1,353 +1,16 @@
-Traceback (most recent call last):
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 77, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 196, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 119, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 726, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 81, in serve
-    await self._serve(sockets)
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\server.py", line 88, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\config.py", line 494, in load
-    self.loaded_app = self.load_app()
-                      ~~~~~~~~~~~~~^^
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\config.py", line 428, in load_app
-    return import_from_string(self.app)
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\site-packages\uvicorn\importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "C:\Users\krish\AppData\Local\Programs\Python\Python313\Lib\importlib\__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1395, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
-  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\main.py", line 3, in <module>
-    from app.routes.discovery import router as discovery_router
-  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\routes\discovery.py", line 10, in <module>
-    from app.services.discovery_engine import (
-    ...<2 lines>...
-    )
-  File "C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\backend\app\services\discovery_engine.py", line 619
-    return "Not detected"
-    ^^^^^^^^^^^^^^^^^^^^^
-SyntaxError: 'return' outside function
+/* =========================================================
+   GLOBAL
+========================================================= */
 
-Yes — this is a Python indentation error, not a Uvicorn problem.
-
-The important part is:
-
-discovery_engine.py", line 619
-return "Not detected"
-SyntaxError: 'return' outside function
-
-This means the return "Not detected" around your detect_location() function is indented incorrectly.
-
-In the code you uploaded, I can see the problematic area around the end of detect_location():
-
-if locations:
-    return " / ".join(locations)
-
-return "Not detected"
-
-Your uploaded version has inconsistent indentation around that section.
-
-Fix it exactly
-
-Go to discovery_engine.py around line 617–619.
-
-Make the ending of detect_location() exactly:
-
-    # -----------------------------------------------------
-    # Remove duplicates
-    # -----------------------------------------------------
-
-    locations = list(
-        dict.fromkeys(locations)
-    )
-
-    if locations:
-        return " / ".join(locations)
-
-    return "Not detected"
-
-Notice that all three executable lines are indented 4 spaces inside def detect_location().
-
-Your current code has:
-
-     if locations:
-         return " / ".join(locations)
-
-     return "Not detected"
-
-Those extra/mismatched spaces are what Python is complaining about.
-
-Then do this
-Save discovery_engine.py.
-Stop the backend with:
-Ctrl + C
-Start it again with your usual command, e.g.:
-uvicorn app.main:app --reload
-Important
-
-Don't change anything else yet.
-
-If you get another SyntaxError, send me the new traceback. We'll fix them one at a time rather than changing working discovery logic unnecessarily.
-
-yes done
-
-Great. ✅
-
-The backend syntax error is fixed.
-
-Next, let's do the actual discovery test:
-
-Keep FastAPI running.
-Keep the React UI running.
-Open AI Asset Discovery.
-Click + New Scan.
-Select Local Repository.
-Enter:
-C:\Users\krish\OneDrive\Desktop\AI\ai-asset-discovery\sample-enterprise-environment
-Click Start Scan.
-
-We should now verify that the UI shows the 3 aggregated applications:
-
-Incident Intelligence
-Enterprise Knowledge
-AI Assist
-
-And specifically check:
-
-Model names
-Provider
-Location
-Purpose
-Tools
-Discovery Source
-Status
-Confidence
-Supporting Evidence paths
-
-Don't change any code yet. Run the scan and send me the resulting UI screenshot/output. Then we'll take the next step.
-
-Yes — I checked the screenshots. The backend changes are working correctly now. ✅
-
-What is correct
-Field	Result
-Type	✅ AI Application
-Model	✅ category_model, severity_model, team_model, GPT-4.x
-Provider	✅ OpenAI / Internal / Local ML
-Location	✅ Cloud / Local Environment
-Application	✅ Incident Intelligence
-Purpose	✅ Investigate and classify incidents
-Discovery Source	✅ Local Repository
-Category	✅ AI/ML
-Evidence path	✅ Clean relative path
-Evidence line	✅ Correct
-Absolute Windows path	✅ Removed from UI
-
-The evidence now shows:
-
-incident-intelligence/backend/real_ai_usage.py
-Line 1
-
-instead of:
-
-C:\Users\krish\OneDrive\Desktop\AI\...
-
-So the evidence-path problem is solved. 🎯
-
-One UI issue I can see
-
-Your Tools section currently displays:
-
-Incident AnalysisInternal ML Models
-
-There should be spacing/separation:
-
-Incident Analysis
-Internal ML Models
-
-This is not a discovery-engine problem. Your backend is correctly returning:
-
-tools = [
-    "Incident Analysis",
-    "Internal ML Models",
-]
-
-The React/CSS is simply rendering them too close together.
-
-Next step
-
-Let's fix the Tools UI, then we'll move to the next major feature rather than changing the discovery engine again.
-
-After that, I recommend we proceed in this order:
-
-✅ Discovery engine
-✅ False-positive handling
-✅ Evidence normalization
-✅ Application aggregation
-✅ Provider/location aggregation
-🔧 Tools UI formatting
-⏭️ GitHub repository scanning verification
-⏭️ More realistic AI detection patterns
-⏭️ Review workflow/status handling
-⏭️ Final evaluator/demo polish
-
-Your core AI Asset Discovery functionality is now in a good working state.
-
-yes we'll do that also and see there is no gap between git repo and local repo 
-
-Yes. 👍 There are two small UI fixes we should make now:
-
-Add a visible gap between Local Repository and GitHub Repository.
-Add spacing between the Tools items.
-1. Fix Local/GitHub buttons
-
-In your App.css, find the styles for .scan-mode and add:
-
-.scan-mode {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.scan-mode button {
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.scan-mode button + button {
-  margin-left: 0;
-}
-
-The important part is:
-
-gap: 6px;
-
-That will turn this:
-
-[Local Repository][GitHub Repository]
-
-into:
-
-[Local Repository]  [GitHub Repository]
-2. Fix the Tools spacing
-
-Your React code already has:
-
-<div className="tool-list">
-  {selectedAsset.tools.map(
-    (tool, index) => (
-      <span
-        className="tool-item"
-        key={index}
-      >
-        {tool}
-      </span>
-    )
-  )}
-</div>
-
-So don't change App.jsx.
-
-In App.css, make sure you have:
-
-.tool-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.tool-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-This will change:
-
-Incident AnalysisInternal ML Models
-
-to something like:
-
-Incident Analysis   Internal ML Models
-Then
-
-Save App.css and refresh the browser.
-
-After that, don't modify the backend. The backend discovery results are currently looking correct.
-
-Send me the screenshot after these two UI fixes, and we'll move to the GitHub Repository scan test next.
-
-Pasted code.css
-File
-i couldn't change you change it and give the full code
-
-Yes. I took your existing CSS and added the fixes without removing your current styling.
-
-Changes made
-✅ Added proper gap between Local Repository and GitHub Repository
-✅ Added spacing between Tools
-✅ Added responsive behavior for smaller screens
-✅ Kept your existing 917-line CSS intact
-✅ The new rules are added at the end so they override conflicting older rules
-
-Download the full corrected CSS:
-
-Download App_corrected.css
-
-Replace your current CSS file with this one.
-
-The important result will be:
-
-[ Local Repository ]  [ GitHub Repository ]
-
-instead of:
-
-[ Local Repository ][ GitHub Repository ]
-
-And:
-
-Tools
-
-[Incident Analysis]   [Internal ML Models]
-
-instead of:
-
-Incident AnalysisInternal ML Models
-
-Your backend code does not need to be changed for this UI fix. 
-
-App_corrected.css
-Code
-
-App_corrected.css
 * {
   box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
 }
 
 body {
@@ -363,16 +26,32 @@ body {
   color: #172033;
 }
 
-button {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
 }
-.app h1{
-  color: #172033;
+
+button {
+  cursor: pointer;
 }
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+
 .app {
   min-height: 100vh;
-  
 }
+
+.app h1 {
+  color: #172033;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
 
 .topbar {
   background: #ffffff;
@@ -412,11 +91,19 @@ button {
   background: #16a34a;
 }
 
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
 .container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 36px 48px;
 }
+
+/* =========================================================
+   SUMMARY
+========================================================= */
 
 .summary-grid {
   display: grid;
@@ -457,6 +144,10 @@ button {
   border-left: 4px solid #64748b;
 }
 
+/* =========================================================
+   INVENTORY
+========================================================= */
+
 .inventory {
   background: #ffffff;
   border: 1px solid #e5e9f2;
@@ -483,10 +174,14 @@ button {
   font-size: 13px;
 }
 
+/* =========================================================
+   SCAN BUTTON
+========================================================= */
+
 .scan-button {
   border: 0;
   background: #2563eb;
-  color: white;
+  color: #ffffff;
   padding: 11px 18px;
   border-radius: 8px;
   font-weight: 600;
@@ -496,6 +191,10 @@ button {
 .scan-button:hover {
   background: #1d4ed8;
 }
+
+/* =========================================================
+   FILTERS
+========================================================= */
 
 .filters {
   padding: 18px 28px;
@@ -520,6 +219,10 @@ button {
   color: #ffffff;
   border-color: #172033;
 }
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 .table-wrapper {
   overflow-x: auto;
@@ -546,8 +249,12 @@ td {
   border-top: 1px solid #eef1f6;
   font-size: 14px;
   color: #475467;
-  vertical-align: top;
+  vertical-align: middle;
 }
+
+/* =========================================================
+   ASSET
+========================================================= */
 
 .asset-name {
   display: flex;
@@ -564,6 +271,19 @@ td {
   color: #98a2b3;
   font-size: 11px;
 }
+
+.asset-row {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.asset-row:hover {
+  background: #f8fafc;
+}
+
+/* =========================================================
+   CONFIDENCE BADGES
+========================================================= */
 
 .badge {
   display: inline-flex;
@@ -589,6 +309,35 @@ td {
   color: #475569;
 }
 
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge.discovered {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-badge.review {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+/* =========================================================
+   EVIDENCE LIST
+========================================================= */
+
 .evidence-list {
   display: flex;
   flex-direction: column;
@@ -600,38 +349,9 @@ td {
   font-size: 12px;
 }
 
-@media (max-width: 900px) {
-  .summary-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .topbar {
-    padding: 24px;
-  }
-
-  .container {
-    padding: 24px;
-  }
-}
-
-@media (max-width: 600px) {
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    align-items: flex-start;
-    gap: 15px;
-    flex-direction: column;
-  }
-
-  .inventory-header {
-    align-items: flex-start;
-    gap: 15px;
-    flex-direction: column;
-  }
-}
-
+/* =========================================================
+   SCAN PANEL
+========================================================= */
 
 .scan-panel {
   margin: 25px 0;
@@ -659,11 +379,17 @@ td {
   border-radius: 10px;
   font-size: 14px;
   outline: none;
+  background: #ffffff;
+  color: #172033;
 }
 
 .scan-panel input:focus {
   border-color: #2563eb;
 }
+
+/* =========================================================
+   SCAN ACTIONS
+========================================================= */
 
 .scan-actions {
   display: flex;
@@ -688,7 +414,11 @@ td {
 
 .start-button {
   background: #2563eb;
-  color: white;
+  color: #ffffff;
+}
+
+.start-button:hover {
+  background: #1d4ed8;
 }
 
 .start-button:disabled {
@@ -696,576 +426,8 @@ td {
   cursor: not-allowed;
 }
 
-.error-message {
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 14px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 50px !important;
-  color: #64748b;
-}
-
-
-
-.asset-row {
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.asset-row:hover {
-  background: #f8fafc;
-}
-
-
-
-.details-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.35);
-  display: flex;
-  justify-content: flex-end;
-  z-index: 1000;
-}
-
-
-.details-panel {
-  width: min(520px, 90vw);
-  height: 100%;
-  background: white;
-  overflow-y: auto;
-  padding: 32px;
-  box-sizing: border-box;
-  box-shadow: -10px 0 35px rgba(15, 23, 42, 0.15);
-}
-
-
-
-.details-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.details-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #64748b;
-}
-
-.details-header h2 {
-  margin: 6px 0 0;
-  font-size: 25px;
-  color: #0f172a;
-}
-
-.close-button {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  background: #f1f5f9;
-  font-size: 25px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.close-button:hover {
-  background: #e2e8f0;
-}
-
-
-
-.details-confidence {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding: 16px;
-  border-radius: 12px;
-  background: #f8fafc;
-}
-
-.details-confidence > span:first-child {
-  font-weight: 600;
-  color: #475569;
-}
-
-
-
-.details-section {
-  margin-top: 28px;
-}
-
-.details-section h3 {
-  margin: 0 0 15px;
-  font-size: 16px;
-  color: #0f172a;
-}
-
-
-
-
-.details-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.details-grid > div {
-  padding: 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-}
-
-.details-grid span {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.details-grid strong {
-  display: block;
-  color: #334155;
-  word-break: break-word;
-}
-
-
-
-.details-evidence {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.evidence-card {
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #ffffff;
-}
-
-.evidence-type {
-  display: inline-block;
-  margin-bottom: 8px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.evidence-value {
-  color: #334155;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.evidence-file {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #e2e8f0;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.5;
-  word-break: break-all;
-}
-
-
-
-
-.details-description {
-  margin: 0;
-  padding: 16px;
-  border-radius: 10px;
-  background: #f8fafc;
-  color: #475569;
-  line-height: 1.6;
-}
-
-/* =========================================================
-   ENTERPRISE INVENTORY TABLE
-========================================================= */
-
-.asset-row {
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.asset-row:hover {
-  background: #f8fafc;
-}
-
-.asset-row td {
-  vertical-align: middle;
-}
-
-/* =========================================================
-   STATUS BADGE
-========================================================= */
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 6px 11px;
-
-  border-radius: 20px;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  white-space: nowrap;
-}
-
-.status-badge.discovered {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-badge.review {
-  background: #fff7ed;
-  color: #c2410c;
-}
-
-/* =========================================================
-   DETAILS OVERLAY
-========================================================= */
-
-.details-overlay {
-  position: fixed;
-  inset: 0;
-
-  background: rgba(15, 23, 42, 0.38);
-
-  display: flex;
-  justify-content: flex-end;
-
-  z-index: 1000;
-}
-
-/* =========================================================
-   DETAILS PANEL
-========================================================= */
-
-.details-panel {
-  width: min(600px, 92vw);
-  height: 100%;
-
-  background: #ffffff;
-
-  overflow-y: auto;
-
-  padding: 32px;
-
-  box-sizing: border-box;
-
-  box-shadow:
-    -12px 0 40px rgba(15, 23, 42, 0.18);
-
-  animation: slideIn 0.25s ease;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* =========================================================
-   DETAILS HEADER
-========================================================= */
-
-.details-header {
-  display: flex;
-
-  justify-content: space-between;
-  align-items: flex-start;
-
-  padding-bottom: 24px;
-
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.details-label {
-  display: block;
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 1.2px;
-
-  color: #64748b;
-}
-
-.details-header h2 {
-  margin: 7px 0 4px;
-
-  font-size: 27px;
-
-  color: #0f172a;
-
-  letter-spacing: -0.4px;
-}
-
-.details-id {
-  color: #94a3b8;
-
-  font-size: 12px;
-
-  font-weight: 600;
-}
-
-/* =========================================================
-   CLOSE BUTTON
-========================================================= */
-
-.close-button {
-  width: 38px;
-  height: 38px;
-
-  border: none;
-
-  border-radius: 9px;
-
-  background: #f1f5f9;
-
-  color: #475569;
-
-  font-size: 24px;
-
-  line-height: 1;
-
-  cursor: pointer;
-}
-
-.close-button:hover {
-  background: #e2e8f0;
-}
-
-/* =========================================================
-   CONFIDENCE + STATUS
-========================================================= */
-
-.details-confidence {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 14px;
-
-  margin-top: 24px;
-}
-
-.details-confidence > div {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 9px;
-
-  padding: 17px;
-
-  border-radius: 12px;
-
-  background: #f8fafc;
-
-  border: 1px solid #e2e8f0;
-}
-
-.details-meta-label {
-  font-size: 12px;
-
-  color: #64748b;
-
-  font-weight: 600;
-}
-
-/* =========================================================
-   DETAILS SECTIONS
-========================================================= */
-
-.details-section {
-  margin-top: 30px;
-}
-
-.details-section h3 {
-  margin: 0 0 15px;
-
-  font-size: 17px;
-
-  color: #0f172a;
-}
-
-/* =========================================================
-   DETAILS GRID
-========================================================= */
-
-.details-grid {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 12px;
-}
-
-.details-grid > div {
-  min-height: 82px;
-
-  padding: 16px;
-
-  border: 1px solid #e2e8f0;
-
-  border-radius: 11px;
-
-  background: #ffffff;
-}
-
-.details-grid span {
-  display: block;
-
-  margin-bottom: 8px;
-
-  font-size: 11px;
-
-  color: #64748b;
-
-  font-weight: 600;
-}
-
-.details-grid strong {
-  display: block;
-
-  color: #1e3a8a;
-
-  font-size: 14px;
-
-  line-height: 1.5;
-
-  word-break: break-word;
-}
-
-/* =========================================================
-   EVIDENCE
-========================================================= */
-
-.details-evidence {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 12px;
-}
-
-.evidence-card {
-  padding: 17px;
-
-  border: 1px solid #e2e8f0;
-
-  border-radius: 12px;
-
-  background: #ffffff;
-}
-
-.evidence-type {
-  display: inline-block;
-
-  margin-bottom: 9px;
-
-  padding: 5px 9px;
-
-  border-radius: 6px;
-
-  background: #eff6ff;
-
-  color: #2563eb;
-
-  font-size: 10px;
-
-  font-weight: 800;
-}
-
-.evidence-value {
-  color: #334155;
-
-  font-weight: 600;
-
-  line-height: 1.55;
-
-  font-size: 14px;
-}
-
-.evidence-file {
-  margin-top: 11px;
-
-  padding-top: 11px;
-
-  border-top: 1px solid #e2e8f0;
-
-  color: #64748b;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-
-  word-break: break-all;
-}
-
-
-
-.details-description {
-  margin: 0;
-
-  padding: 17px;
-
-  border-radius: 11px;
-
-  background: #f8fafc;
-
-  border: 1px solid #e2e8f0;
-
-  color: #475569;
-
-  line-height: 1.65;
-
-  font-size: 13px;
-}
-
-
-@media (max-width: 700px) {
-
-  .details-panel {
-    width: 100vw;
-
-    padding: 22px;
-  }
-
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .details-confidence {
-    grid-template-columns: 1fr;
-  }
-
-}
 /* =========================================================
    SCAN MODE BUTTONS
-   Adds a clear gap between Local Repository and GitHub Repository
 ========================================================= */
 
 .scan-mode {
@@ -1298,8 +460,257 @@ td {
 }
 
 /* =========================================================
+   ERROR / EMPTY STATES
+========================================================= */
+
+.error-message {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px !important;
+  color: #64748b;
+}
+
+/* =========================================================
+   DETAILS OVERLAY
+========================================================= */
+
+.details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+}
+
+/* =========================================================
+   DETAILS PANEL
+========================================================= */
+
+.details-panel {
+  width: min(600px, 92vw);
+  height: 100%;
+  background: #ffffff;
+  overflow-y: auto;
+  padding: 32px;
+  box-sizing: border-box;
+  box-shadow: -12px 0 40px rgba(15, 23, 42, 0.18);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   DETAILS HEADER
+========================================================= */
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.details-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #64748b;
+}
+
+.details-header h2 {
+  margin: 7px 0 4px;
+  font-size: 27px;
+  color: #0f172a;
+  letter-spacing: -0.4px;
+}
+
+.details-id {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.close-button {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 9px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background: #e2e8f0;
+}
+
+/* =========================================================
+   DETAILS CONFIDENCE + STATUS
+========================================================= */
+
+.details-confidence {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.details-confidence > div {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 17px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.details-confidence > span:first-child {
+  font-weight: 600;
+  color: #475569;
+}
+
+.details-meta-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* =========================================================
+   DETAILS SECTIONS
+========================================================= */
+
+.details-section {
+  margin-top: 30px;
+}
+
+.details-section h3 {
+  margin: 0 0 15px;
+  font-size: 17px;
+  color: #0f172a;
+}
+
+/* =========================================================
+   DETAILS GRID
+========================================================= */
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.details-grid > div {
+  min-height: 82px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #ffffff;
+}
+
+.details-grid span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.details-grid strong {
+  display: block;
+  color: #1e3a8a;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* =========================================================
+   DETAILS EVIDENCE
+========================================================= */
+
+.details-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evidence-card {
+  padding: 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.evidence-type {
+  display: inline-block;
+  margin-bottom: 9px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.evidence-value {
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.evidence-file {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+/* =========================================================
+   DETAILS DESCRIPTION
+========================================================= */
+
+.details-description {
+  margin: 0;
+  padding: 17px;
+  border-radius: 11px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  line-height: 1.65;
+  font-size: 13px;
+}
+
+/* =========================================================
    TOOLS
-   Adds spacing between individual tools
 ========================================================= */
 
 .tool-list {
@@ -1324,10 +735,59 @@ td {
 }
 
 /* =========================================================
-   RESPONSIVE SCAN MODE
+   RESPONSIVE - TABLET
 ========================================================= */
 
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .topbar {
+    padding: 24px;
+  }
+
+  .container {
+    padding: 24px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+  .details-panel {
+    width: 100vw;
+    padding: 22px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-confidence {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
+  .inventory-header {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
   .scan-mode {
     flex-wrap: wrap;
     gap: 8px;
