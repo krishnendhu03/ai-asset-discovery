@@ -100,7 +100,7 @@ Category
 Supporting evidence
 Currently recognized AI/ML technologies
 
-The discovery engine includes patterns for technologies such as:
+The discovery engine currently includes patterns for technologies such as:
 
 OpenAI
 Anthropic
@@ -383,46 +383,27 @@ handling.
 
 10. Sample Enterprise Environment
 
-The repository also contains a sample enterprise environment:
+To demonstrate AI Asset Discovery in a realistic organizational setting,
+the project includes a sample enterprise environment containing three
+AI-enabled applications:
 
-sample-enterprise-environment/
-├── ai-assist/
-├── enterprise-knowledge/
-├── incident-intelligence/
-└── platform-ui/
+- AI Assist
+- Enterprise Knowledge
+- Incident Intelligence
 
-This represents a larger enterprise-style environment containing multiple
-applications.
+Each application represents a different enterprise use case and contains
+AI-related implementation evidence such as providers, models, SDKs,
+API usage, and supporting source-code references.
 
-AI Assist
+The AI Asset Discovery platform scans this environment as a testbed and
+identifies the AI assets operating within it.
 
-Demonstrates:
-
-Scikit-learn dependency
-Machine-learning model training
-Model artifact detection
-Joblib model loading
-Model prediction
-Enterprise Knowledge
-
-Demonstrates:
-
-Enterprise knowledge processing
-Local machine-learning functionality
-Model artifacts
-Incident Intelligence
-
-Demonstrates:
-
-OpenAI usage
-GPT model detection
-Local machine-learning functionality
-Multiple model artifacts
-
-The sample environment allows the discovery engine to be tested against
-different AI usage patterns rather than relying on a single example.
+The sample environment is not the primary product. It exists to provide a
+realistic environment against which the discovery capabilities can be
+demonstrated.
 
 11. Project Structure
+
 ai-asset-discovery/
 │
 ├── backend/
@@ -454,17 +435,29 @@ The sample enterprise environment provides controlled applications for
 testing the discovery engine.
 
 12. Technology Stack
+
 Frontend
-React
+
+React.js
 JavaScript
 HTML5
 CSS3
 Vite
+
 Backend
+
 Python
 FastAPI
 Pydantic
+
+Database
+
+PostgreSQL
+SQLAlchemy
+RDBMS
+
 Discovery
+
 Repository analysis
 Source-code analysis
 Dependency analysis
@@ -475,13 +468,13 @@ Evidence correlation
 Confidence classification
 Application aggregation
 False-positive handling
+
 Version Control
+
 Git
 GitHub
 
-
-13. How to Run
-Backend
+13. How to Run Backend
 
 From the project root:
 
@@ -535,8 +528,8 @@ The resulting assets are marked:
 Discovery Source:
 Git Repository
 
-
 14. Example Discovery Flow
+
 User enters repository
               ↓
         Start New Scan
@@ -570,6 +563,7 @@ Evidence is collected first and classification happens after the evidence has
 been evaluated.
 
 15. Key Design Decisions
+
 Evidence before classification
 
 AI-related keywords alone are not treated as proof of an AI system.
@@ -673,7 +667,19 @@ Discovered AI assets are persisted in the `ai_assets` table, including:
 
 The database provides persistent storage for discovered AI assets instead of relying only on in-memory application state.
 
-17. Outcome
+17. Screenshots
+
+The `screenshots/` directory contains screenshots demonstrating:
+
+- AI Asset Discovery dashboard
+- AI asset inventory
+- Asset details and supporting evidence
+- Sample enterprise environment
+- AI-Assist
+- Enterprise-knowledge
+- Incident-intelligence
+
+18. Outcome
 
 The project demonstrates an end-to-end approach for:
 
@@ -695,3 +701,49 @@ Demonstrating discovery against a sample enterprise environment
 
 The focus is not only on identifying AI-related code, but on providing
 evidence-backed, explainable, and reviewable AI asset discovery.
+
+19. Deployed Application
+
+Live application:
+
+[https://ai-asset-discovery.onrender.com]
+
+Backend API:
+
+[https://ai-asset-discovery-backend.onrender.com]
+
+20. Demo & Evaluation
+
+The project can be evaluated using the deployed application or by running
+the project locally.
+
+Recommended Demo Flow
+
+
+1. Open the AI Asset Discovery dashboard.
+2. Click **+ New Scan**.
+3. Select **GitHub Repository**.
+4. Enter:`https://github.com/krishnendhu03/ai-asset-discovery`
+5. Click Start Scan.
+6. Review the resulting AI asset inventory and confidence classifications.
+7. Select **Incident Intelligence**.
+8. Review its confidence, provider, model, application, purpose, and discovery source.
+9. Review the **Supporting Evidence**, including repository-relative file paths
+   and source-code line numbers.
+
+Demonstrated Sample Environment
+
+The repository contains a sample enterprise environment with:
+
+- AI Assist
+- Enterprise Knowledge
+- Incident Intelligence
+
+These applications provide realistic AI/ML usage for demonstrating the
+discovery engine.
+
+Screenshots
+
+Screenshots demonstrating the dashboard, asset inventory, asset details,
+supporting evidence, and sample enterprise environment are available in
+the `screenshots/` directory.
