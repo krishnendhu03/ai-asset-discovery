@@ -96,9 +96,10 @@ button {
 ========================================================= */
 
 .container {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1500px;
   margin: 0 auto;
-  padding: 36px 48px;
+  padding: 36px clamp(20px, 3.5vw, 48px);
 }
 
 /* =========================================================
@@ -166,6 +167,8 @@ button {
 .inventory-header h2 {
   margin: 0;
   font-size: 20px;
+  font-weight: 700;
+  color: #172033;
 }
 
 .inventory-header p {
